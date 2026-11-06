@@ -1,0 +1,4219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bài 10: Hoạt động sản xuất thủ công và công nghiệp (Tiết 1) - GV Hoàng Thị Tâm</title>
+  <style>
+    :root {
+      --blue-main: #0752E8;
+      --blue-dark: #082461;
+      --blue-deep: #05163D;
+      --blue-soft: #EBF3FF;
+      --yellow-main: #FFD51C;
+      --yellow-dark: #D99B00;
+      --yellow-soft: #FFF9DB;
+      --green-done: #17A84B;
+      --green-soft: #E8F8EE;
+      --red-err: #D92D20;
+      --red-soft: #FEE4E2;
+      --text-main: #101B46;
+      --text-muted: #3A497A;
+      --white: #FFFFFF;
+      --transition-fast: 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--blue-dark);
+      background-image: radial-gradient(circle at 50% 35%, #0c358a 0%, #082461 65%, #041336 100%);
+      font-family: "Times New Roman", Times, serif;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Gợi ý xoay ngang trên màn hình dọc */
+    #portrait-notice {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(8, 36, 97, 0.96);
+      color: var(--white);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      gap: 16px;
+    }
+    #portrait-notice .rotate-box {
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px solid var(--yellow-main);
+      border-radius: 20px;
+      padding: 24px 32px;
+      max-width: 420px;
+    }
+    #portrait-notice h2 {
+      font-size: 28px;
+      color: var(--yellow-main);
+      margin-bottom: 10px;
+    }
+    #portrait-notice p {
+      font-size: 20px;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+    #portrait-notice button {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 10px 24px;
+      border-radius: 999px;
+      border: none;
+      background: var(--yellow-main);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    @media (orientation: portrait) and (max-width: 900px) {
+      #portrait-notice:not(.dismissed) {
+        display: flex;
+      }
+    }
+
+    /* Khung 16:9 chuẩn 1600x900 */
+    #stage-wrapper {
+      width: 1600px;
+      height: 900px;
+      position: relative;
+      transform-origin: center center;
+      overflow: hidden;
+      border-radius: 18px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 3px rgba(255, 213, 28, 0.35);
+      background-color: var(--white);
+      background-image: url("ui/01_background_16x9.png");
+      background-size: 100% 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* ================= HEADER GỌN GÀNG, KHOA HỌC (66px) ================= */
+    #app-header {
+      height: 66px;
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      z-index: 20;
+      background: linear-gradient(180deg, rgba(7, 82, 232, 0.95) 0%, rgba(8, 36, 97, 0.94) 100%);
+      border-bottom: 3px solid var(--yellow-main);
+      box-shadow: 0 4px 14px rgba(8, 36, 97, 0.18);
+      color: var(--white);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .subject-pill {
+      background: var(--yellow-main);
+      color: var(--text-main);
+      font-size: 21px;
+      font-weight: bold;
+      padding: 5px 16px;
+      border-radius: 999px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.18);
+      white-space: nowrap;
+    }
+    .header-lesson-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #FFFFFF;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Thanh tiến độ 1 dòng gọn gàng */
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+    }
+    .progress-label {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--yellow-soft);
+      white-space: nowrap;
+    }
+    .progress-track {
+      width: 210px;
+      height: 16px;
+      background: rgba(5, 22, 61, 0.55);
+      border: 2px solid rgba(255, 213, 28, 0.85);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #17A84B 0%, #32D768 55%, #FFD51C 100%);
+      border-radius: 999px;
+      transition: width 300ms ease;
+    }
+    .progress-pct {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--yellow-main);
+      min-width: 48px;
+      text-align: right;
+    }
+
+    /* Cụm nút âm thanh gọn trên Header */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .icon-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      color: var(--white);
+      padding: 0 14px;
+      border-radius: 999px;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform var(--transition-fast), background var(--transition-fast);
+      white-space: nowrap;
+    }
+    .icon-action-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+      border-color: var(--yellow-main);
+    }
+    .icon-action-btn:active {
+      transform: translateY(2px) scale(0.97);
+    }
+    .icon-action-btn img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+    .icon-action-btn.speaking {
+      border-color: var(--yellow-main);
+      background: rgba(255, 213, 28, 0.25);
+      box-shadow: 0 0 10px rgba(255, 213, 28, 0.55);
+    }
+
+    /* ================= MAIN CONTENT (762px - RỘNG RÃI, KHÔNG BỊ CHE) ================= */
+    #app-main {
+      flex: 1;
+      height: 762px;
+      padding: 16px 36px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ================= FOOTER GỌN GÀNG (72px) ================= */
+    #app-footer {
+      height: 72px;
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      z-index: 20;
+      background: linear-gradient(180deg, rgba(235, 243, 255, 0.9) 0%, rgba(212, 228, 255, 0.98) 100%);
+      border-top: 2px solid rgba(7, 82, 232, 0.25);
+    }
+
+    .footer-left, .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-center {
+      flex: 1;
+      text-align: center;
+      font-size: 25px;
+      font-weight: bold;
+      color: var(--blue-dark);
+    }
+
+    /* Nút UI gọn gàng dùng 04_button_yellow.png & 05_button_blue.png */
+    .ui-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 185px;
+      height: 54px;
+      padding: 0 22px 3px 22px;
+      border: none;
+      background-color: transparent;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform var(--transition-fast), filter var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .ui-btn-yellow {
+      background-image: url("ui/04_button_yellow.png");
+      color: var(--text-main);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+    .ui-btn-blue {
+      background-image: url("ui/05_button_blue.png");
+      color: var(--white);
+      text-shadow: 0 2px 3px rgba(0, 0, 0, 0.45);
+    }
+    .ui-btn:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.02);
+      filter: brightness(1.05);
+    }
+    .ui-btn:active:not(:disabled) {
+      transform: translateY(2px) scale(0.98);
+    }
+    .ui-btn:disabled {
+      filter: grayscale(0.85) opacity(0.55);
+      cursor: not-allowed;
+    }
+    .ui-btn img.btn-icon {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    /* Nút icon điều hướng gọn (Home chỉ có icon, không có chữ Trang bìa) */
+    .nav-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      height: 48px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 2px solid var(--blue-main);
+      background: var(--white);
+      color: var(--text-main);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(7, 82, 232, 0.14);
+      transition: transform var(--transition-fast), background var(--transition-fast);
+    }
+    .nav-icon-btn.icon-only {
+      width: 50px;
+      padding: 0;
+    }
+    .nav-icon-btn:hover:not(:disabled) {
+      background: var(--blue-soft);
+      transform: translateY(-2px);
+    }
+    .nav-icon-btn:active:not(:disabled) {
+      transform: translateY(2px);
+    }
+    .nav-icon-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+    .nav-icon-btn img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    .page-indicator {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      background: var(--white);
+      border: 2px solid var(--blue-main);
+      padding: 6px 14px;
+      border-radius: 12px;
+      min-width: 82px;
+      text-align: center;
+    }
+
+    /* ================= KHUNG PANEL CHÍNH ================= */
+    .content-panel {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--white);
+      border-radius: 26px;
+      border: 4px solid var(--blue-main);
+      box-shadow: 0 12px 32px rgba(7, 82, 232, 0.14), inset 0 0 0 4px #EBF3FF;
+      padding: 22px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .screen-heading {
+      text-align: center;
+      font-size: 42px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+      text-shadow: 0 1px 0 #fff;
+    }
+    .screen-subheading {
+      text-align: center;
+      font-size: 27px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* ================= MÀN 1: TRANG BÌA (CANH GIỮA CÂN ĐỐI, TRANG TRỌNG) ================= */
+    .cover-layout {
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 32px;
+      height: 100%;
+      align-items: center;
+      padding: 6px 14px;
+    }
+    .cover-info-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 15px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F5F9FF 100%);
+      border: 3px solid rgba(7, 82, 232, 0.22);
+      border-radius: 24px;
+      padding: 24px 28px;
+      height: 100%;
+      box-shadow: 0 8px 24px rgba(7, 82, 232, 0.08);
+    }
+    .cover-org-banner {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(90deg, #EBF3FF 0%, #F7FAFF 50%, #EBF3FF 100%);
+      border: 2px solid rgba(7, 82, 232, 0.28);
+      border-bottom: 4px solid var(--blue-main);
+      padding: 10px 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(7, 82, 232, 0.08);
+      width: 100%;
+      max-width: 680px;
+    }
+    .cover-org-banner .org-line1 {
+      font-size: 23px;
+      font-weight: bold;
+      color: var(--blue-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cover-org-banner .org-line2 {
+      font-size: 29px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .cover-subject-tag {
+      display: inline-block;
+      align-self: center;
+      background: var(--blue-main);
+      color: var(--white);
+      font-size: 26px;
+      font-weight: bold;
+      padding: 6px 28px;
+      border-radius: 999px;
+      border: 3px solid var(--yellow-main);
+      box-shadow: 0 4px 10px rgba(7, 82, 232, 0.2);
+    }
+    .cover-main-title {
+      font-size: 42px;
+      line-height: 1.22;
+      font-weight: bold;
+      color: var(--text-main);
+      text-align: center;
+      max-width: 720px;
+    }
+    .cover-main-title span {
+      color: var(--blue-main);
+      display: block;
+      margin-top: 6px;
+      font-size: 35px;
+    }
+    .cover-activity-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      align-self: center;
+      background: var(--yellow-soft);
+      border: 2px solid var(--yellow-dark);
+      color: var(--blue-dark);
+      font-size: 26px;
+      font-weight: bold;
+      padding: 7px 26px;
+      border-radius: 999px;
+    }
+    .cover-teacher-card {
+      background: var(--blue-soft);
+      border: 2px solid rgba(7, 82, 232, 0.35);
+      border-radius: 16px;
+      padding: 11px 32px;
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      width: 100%;
+      max-width: 620px;
+    }
+    .cover-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 4px;
+    }
+
+    /* Cụm 4 ảnh SGK thu nhỏ trên bìa */
+    .cover-showcase {
+      background: linear-gradient(145deg, #0752E8 0%, #082461 100%);
+      border-radius: 24px;
+      padding: 18px;
+      border: 4px solid var(--yellow-main);
+      box-shadow: 0 14px 30px rgba(8, 36, 97, 0.28);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .cover-mini-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 8px;
+      border: 3px solid var(--yellow-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .cover-mini-card img {
+      width: 100%;
+      height: 168px;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 9px;
+    }
+    .cover-mini-card span {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--text-main);
+    }
+
+    /* ================= MÀN 2: VIDEO MỞ ĐẦU ================= */
+    .video-stage-layout {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 24px;
+      flex: 1;
+      align-items: stretch;
+      margin-top: 6px;
+    }
+    .video-frame-box {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #061539;
+      border-radius: 22px;
+      border: 5px solid var(--yellow-main);
+      box-shadow: 0 12px 28px rgba(8, 36, 97, 0.3);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .ai-teacher-stage {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 30%, #1648B8 0%, #082461 85%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 26px;
+      color: var(--white);
+      text-align: center;
+    }
+    .ai-teacher-header {
+      background: rgba(255, 213, 28, 0.2);
+      border: 2px solid var(--yellow-main);
+      color: var(--yellow-main);
+      padding: 8px 22px;
+      border-radius: 999px;
+      font-size: 25px;
+      font-weight: bold;
+    }
+    .ai-Ordered-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+      margin: 12px 0;
+    }
+    .ai-preview-item {
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--text-main);
+      border-radius: 16px;
+      padding: 10px;
+      border: 3px solid var(--yellow-main);
+    }
+    .ai-preview-item img {
+      width: 100%;
+      height: 185px;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 10px;
+    }
+    .ai-preview-item p {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+    .video-question-card {
+      background: var(--blue-soft);
+      border: 3px solid var(--blue-main);
+      border-radius: 22px;
+      padding: 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .video-question-card h3 {
+      font-size: 34px;
+      color: var(--blue-dark);
+      border-bottom: 2px solid rgba(7, 82, 232, 0.25);
+      padding-bottom: 10px;
+    }
+    .video-question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 28px;
+      line-height: 1.38;
+    }
+    .video-question-item {
+      background: var(--white);
+      border-left: 6px solid var(--yellow-dark);
+      padding: 14px 18px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    /* ================= MÀN 3: GIAO NHIỆM VỤ ================= */
+    .mission-steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 26px;
+      flex: 1;
+      align-items: stretch;
+      margin: 12px 0;
+    }
+    .mission-step-card {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F4F8FF 100%);
+      border: 3px solid var(--blue-main);
+      border-radius: 24px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 24px rgba(7, 82, 232, 0.12);
+    }
+    .step-number-badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: var(--blue-main);
+      border: 4px solid var(--yellow-main);
+      color: var(--white);
+      font-size: 38px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(7, 82, 232, 0.3);
+    }
+    .mission-step-card h3 {
+      font-size: 36px;
+      color: var(--blue-dark);
+    }
+    .mission-step-card p {
+      font-size: 29px;
+      line-height: 1.4;
+      color: var(--text-main);
+    }
+    .mission-step-tag {
+      background: var(--yellow-soft);
+      border: 2px solid var(--yellow-dark);
+      color: var(--text-main);
+      font-size: 24px;
+      font-weight: bold;
+      padding: 8px 20px;
+      border-radius: 999px;
+      width: 100%;
+    }
+
+    /* ================= MÀN 4: LƯỚI 4 NGHỀ (DÙNG 03_item_card.png CHUẨN) ================= */
+    .craft-grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 22px 36px;
+      flex: 1;
+      padding: 6px 28px;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .sgk-card-btn {
+      position: relative;
+      width: 620px;
+      height: 278px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: transform var(--transition-fast), filter var(--transition-fast);
+      border-radius: 24px;
+    }
+    .sgk-card-btn:hover {
+      transform: translateY(-4px) scale(1.015);
+      filter: drop-shadow(0 10px 20px rgba(7, 82, 232, 0.25));
+    }
+    .sgk-card-btn:active {
+      transform: translateY(2px) scale(0.99);
+    }
+    .sgk-card-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .sgk-card-photo-wrap {
+      position: absolute;
+      left: 3.3%;
+      top: 5.2%;
+      width: 93.4%;
+      height: 74.2%;
+      border-radius: 16px 16px 6px 6px;
+      overflow: hidden;
+      background: #ffffff;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 295px 1fr;
+      align-items: center;
+      border: 2px solid rgba(217, 155, 0, 0.45);
+    }
+    .sgk-card-photo-wrap img.sgk-crop-img {
+      width: 295px;
+      height: 100%;
+      object-fit: fill;
+      display: block;
+      border-right: 3px solid var(--yellow-main);
+    }
+    .sgk-card-side-summary {
+      padding: 14px 18px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      height: 100%;
+      background: linear-gradient(135deg, #FFFFFF 0%, #F4F8FF 100%);
+    }
+    .sgk-card-num-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      background: var(--blue-main);
+      color: var(--white);
+      font-size: 22px;
+      font-weight: bold;
+      padding: 4px 14px;
+      border-radius: 999px;
+    }
+    .sgk-card-prompt {
+      font-size: 25px;
+      line-height: 1.3;
+      color: var(--text-main);
+      font-weight: bold;
+    }
+    .sgk-card-hint {
+      font-size: 21px;
+      color: var(--blue-main);
+      font-weight: bold;
+    }
+    .sgk-card-caption {
+      position: absolute;
+      left: 4%;
+      bottom: 3.2%;
+      width: 92%;
+      height: 17.5%;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: bold;
+      color: var(--text-main);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+    }
+    .sgk-card-check {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      z-index: 5;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+    }
+
+    /* ================= MÀN CHI TIẾT NGHỀ (60% ẢNH - 40% TỪ KHÓA) ================= */
+    .detail-view-layout {
+      display: grid;
+      grid-template-columns: 58% 40%;
+      gap: 2%;
+      height: 100%;
+      align-items: stretch;
+    }
+    .detail-photo-column {
+      background: var(--blue-soft);
+      border: 3px solid var(--blue-main);
+      border-radius: 22px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .detail-photo-frame {
+      width: 100%;
+      flex: 1;
+      background: var(--white);
+      border: 4px solid var(--yellow-main);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    .detail-photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #fff;
+    }
+    .detail-photo-caption-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px 2px 14px;
+    }
+    .detail-photo-caption-bar .fig-label {
+      font-size: 29px;
+      font-weight: bold;
+      color: var(--blue-dark);
+    }
+    .detail-keywords-column {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F7FAFF 100%);
+      border: 3px solid var(--blue-main);
+      border-radius: 22px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .keyword-box-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .keyword-item {
+      background: var(--white);
+      border-left: 7px solid var(--blue-main);
+      border-radius: 12px;
+      padding: 14px 18px;
+      box-shadow: 0 4px 12px rgba(7, 82, 232, 0.08);
+    }
+    .keyword-item.item-yellow {
+      border-left-color: var(--yellow-dark);
+    }
+    .keyword-item.item-green {
+      border-left-color: var(--green-done);
+    }
+    .keyword-label {
+      font-size: 23px;
+      font-weight: bold;
+      color: var(--blue-main);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .keyword-value {
+      font-size: 29px;
+      line-height: 1.34;
+      font-weight: bold;
+      color: var(--text-main);
+    }
+    .detail-action-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .detail-action-row .ui-btn {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ================= MÀN 5: KIỂM TRA & TRÒ CHƠI TRẮC NGHIỆM ================= */
+    .quiz-layout {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 28px;
+      height: 100%;
+      align-items: center;
+    }
+    .quiz-visual-card {
+      background: var(--blue-soft);
+      border: 3px solid var(--blue-main);
+      border-radius: 22px;
+      padding: 20px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+    }
+    .quiz-visual-card img.quiz-illust {
+      width: 100%;
+      height: 390px;
+      object-fit: contain;
+      background: var(--white);
+      border-radius: 16px;
+      border: 4px solid var(--yellow-main);
+      padding: 8px;
+    }
+    .quiz-step-pills {
+      display: flex;
+      gap: 10px;
+    }
+    .quiz-pill {
+      padding: 6px 18px;
+      border-radius: 999px;
+      font-size: 23px;
+      font-weight: bold;
+      background: var(--white);
+      border: 2px solid var(--blue-main);
+      color: var(--blue-dark);
+    }
+    .quiz-pill.active {
+      background: var(--blue-main);
+      color: var(--white);
+    }
+    .quiz-pill.done {
+      background: var(--green-done);
+      border-color: var(--green-done);
+      color: var(--white);
+    }
+
+    .quiz-QA-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      gap: 14px;
+    }
+    .quiz-question-box {
+      background: linear-gradient(90deg, #EBF3FF 0%, #FFFFFF 100%);
+      border: 3px solid var(--blue-main);
+      border-radius: 18px;
+      padding: 18px 22px;
+      font-size: 32px;
+      font-weight: bold;
+      line-height: 1.34;
+      color: var(--text-main);
+    }
+    .quiz-options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .quiz-option-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 16px;
+      border: 3px solid #B8CEFF;
+      background: var(--white);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 30px;
+      font-weight: bold;
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: left;
+      transition: all var(--transition-fast);
+    }
+    .quiz-option-btn:hover {
+      border-color: var(--blue-main);
+      background: #F4F8FF;
+    }
+    .quiz-option-btn.selected {
+      border-color: var(--blue-main);
+      background: #DCE9FF;
+      box-shadow: 0 0 0 3px rgba(7, 82, 232, 0.25);
+    }
+    .quiz-option-btn.correct {
+      border-color: var(--green-done);
+      background: var(--green-soft);
+      color: #0B5C28;
+    }
+    .quiz-option-btn.wrong {
+      border-color: var(--red-err);
+      background: var(--red-soft);
+      color: #8A1C14;
+    }
+    .option-letter {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--blue-main);
+      color: var(--white);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .quiz-option-btn.selected .option-letter {
+      background: var(--yellow-main);
+      color: var(--text-main);
+    }
+    .quiz-option-btn.correct .option-letter {
+      background: var(--green-done);
+      color: var(--white);
+    }
+    .quiz-option-btn.wrong .option-letter {
+      background: var(--red-err);
+      color: var(--white);
+    }
+
+    .quiz-feedback-bar {
+      min-height: 64px;
+      border-radius: 14px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 26px;
+      font-weight: bold;
+    }
+    .quiz-feedback-bar.fb-neutral {
+      background: #F2F5FA;
+      color: var(--text-muted);
+      border: 2px dashed #B8CEFF;
+    }
+    .quiz-feedback-bar.fb-ok {
+      background: var(--green-soft);
+      color: #0B5C28;
+      border: 2px solid var(--green-done);
+    }
+    .quiz-feedback-bar.fb-err {
+      background: var(--red-soft);
+      color: #8A1C14;
+      border: 2px solid var(--red-err);
+    }
+
+    /* ================= MÀN 6.2: GHI NHỚ (CÓ HÌNH 3D MINH HỌA KHOA HỌC) ================= */
+    .memo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      flex: 1;
+      margin: 6px 0;
+      min-height: 0;
+    }
+    .memo-card {
+      background: linear-gradient(180deg, #FFFDF2 0%, #FFF6CC 100%);
+      border: 3px solid var(--yellow-dark);
+      border-radius: 22px;
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 8px 20px rgba(217, 155, 0, 0.14);
+      min-height: 0;
+    }
+    .memo-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 30px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      border-bottom: 2px solid rgba(217, 155, 0, 0.4);
+      padding-bottom: 8px;
+      flex-shrink: 0;
+    }
+    .memo-card-illust {
+      width: 100%;
+      height: 245px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 3px solid var(--yellow-dark);
+      background: #ffffff;
+      box-shadow: 0 6px 14px rgba(8, 36, 97, 0.12);
+      flex-shrink: 0;
+    }
+    .memo-card-illust img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .memo-card p {
+      font-size: 25px;
+      line-height: 1.36;
+      color: var(--text-main);
+      font-weight: bold;
+    }
+
+    /* ================= MÀN 6.3: MỞ RỘNG 4 NGHỀ (ẢNH THỰC TẾ) ================= */
+    .extend-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+    .extend-photo-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--white);
+      border: 3px solid #B8CEFF;
+      border-radius: 18px;
+      padding: 10px 10px 12px 10px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-family: "Times New Roman", Times, serif;
+      position: relative;
+      box-shadow: 0 6px 14px rgba(7, 82, 232, 0.08);
+    }
+    .extend-photo-card:hover {
+      border-color: var(--blue-main);
+      transform: translateY(-3px);
+    }
+    .extend-photo-card.selected {
+      border-color: var(--blue-main);
+      background: linear-gradient(180deg, #EBF3FF 0%, #DCE9FF 100%);
+      box-shadow: 0 0 0 4px rgba(7, 82, 232, 0.22);
+    }
+    .extend-photo-box {
+      width: 100%;
+      height: 190px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 3px solid var(--yellow-main);
+      background: #f8fafc;
+      position: relative;
+    }
+    .extend-photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      display: block;
+    }
+    .extend-photo-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 26px;
+      font-weight: bold;
+      color: var(--blue-dark);
+    }
+    .extend-detail-banner {
+      display: grid;
+      grid-template-columns: 400px 1fr auto;
+      gap: 20px;
+      align-items: center;
+      background: linear-gradient(90deg, #EBF3FF 0%, #FFFFFF 100%);
+      border: 3px solid var(--blue-main);
+      border-radius: 20px;
+      padding: 14px 20px;
+      flex: 1;
+      min-height: 0;
+    }
+    .extend-detail-preview {
+      width: 400px;
+      height: 250px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 3px solid var(--yellow-dark);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .extend-detail-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ================= MÀN 7: TRÒ CHƠI & SAO THƯỞNG ================= */
+    .stars-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--blue-dark);
+      padding: 6px 20px;
+      border-radius: 999px;
+      border: 3px solid var(--yellow-main);
+    }
+    .stars-bar span {
+      color: var(--white);
+      font-size: 23px;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+    .star-icon {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      transition: transform 300ms ease, filter 300ms ease;
+    }
+    .star-icon.unearned {
+      filter: grayscale(1) brightness(0.65) opacity(0.6);
+    }
+    .star-icon.earned {
+      filter: drop-shadow(0 0 8px rgba(255, 213, 28, 0.9));
+      transform: scale(1.12);
+    }
+
+    /* Kéo - Thả Thử thách 3 */
+    .matching-container {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 28px;
+      flex: 1;
+      align-items: stretch;
+      padding: 4px 10px;
+      min-height: 0;
+    }
+    .match-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .match-col-title {
+      font-size: 25px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      text-align: center;
+      background: var(--blue-soft);
+      padding: 6px 14px;
+      border-radius: 12px;
+      border: 2px solid rgba(7, 82, 232, 0.25);
+    }
+    .drag-product-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 112px;
+      padding: 10px 16px;
+      border-radius: 18px;
+      border: 3px solid var(--blue-main);
+      background: linear-gradient(180deg, #FFFFFF 0%, #F4F8FF 100%);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 27px;
+      font-weight: bold;
+      color: var(--text-main);
+      cursor: grab;
+      transition: all var(--transition-fast);
+      box-shadow: 0 6px 14px rgba(7, 82, 232, 0.12);
+      touch-action: none;
+    }
+    .drag-product-card:active {
+      cursor: grabbing;
+    }
+    .drag-product-card.active-pick {
+      border-color: var(--yellow-dark);
+      background: var(--yellow-soft);
+      box-shadow: 0 0 0 4px rgba(255, 213, 28, 0.45);
+    }
+    .drag-product-card.already-placed {
+      border-style: dashed;
+      border-color: #94A3B8;
+      background: #F8FAFC;
+      opacity: 0.72;
+      cursor: pointer;
+    }
+    .drag-product-card img.match-thumb {
+      width: 122px;
+      height: 86px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid var(--yellow-dark);
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+    .drag-handle-pill {
+      background: var(--blue-main);
+      color: var(--white);
+      font-size: 20px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .drop-craft-slot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 112px;
+      padding: 10px 18px;
+      border-radius: 18px;
+      border: 3px solid #99B8FF;
+      background: var(--white);
+      font-family: "Times New Roman", Times, serif;
+      transition: all var(--transition-fast);
+    }
+    .drop-craft-slot.drag-over {
+      border-color: var(--yellow-dark);
+      background: var(--yellow-soft);
+      transform: scale(1.015);
+      box-shadow: 0 0 0 4px rgba(255, 213, 28, 0.4);
+    }
+    .drop-craft-slot.filled {
+      border-color: var(--green-done);
+      background: #F2FBF5;
+    }
+    .drop-craft-name {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      min-width: 235px;
+    }
+    .drop-zone-box {
+      flex: 1;
+      min-height: 86px;
+      border: 3px dashed #7BA4FF;
+      border-radius: 14px;
+      background: #F4F8FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--blue-main);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .drop-craft-slot.filled .drop-zone-box {
+      border-style: solid;
+      border-color: var(--green-done);
+      background: var(--white);
+      justify-content: space-between;
+      color: var(--text-main);
+    }
+    .dropped-prod-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .dropped-prod-chip img {
+      width: 84px;
+      height: 62px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid var(--yellow-dark);
+    }
+    .remove-pair-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid var(--red-err);
+      background: var(--red-soft);
+      color: var(--red-err);
+      font-weight: bold;
+      font-size: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ================= MÀN 8: GÓC HỎI ĐÁP — CHATBOT THÔNG MINH ================= */
+    .qa-corner-layout {
+      display: grid;
+      grid-template-columns: 0.78fr 1.22fr;
+      gap: 20px;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .qa-questions-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--blue-soft);
+      border: 3px solid var(--blue-main);
+      border-radius: 20px;
+      padding: 14px 16px;
+      min-height: 0;
+    }
+    .qa-q-btn {
+      text-align: left;
+      padding: 11px 14px;
+      border-radius: 13px;
+      border: 2px solid #99B8FF;
+      background: var(--white);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      line-height: 1.28;
+    }
+    .qa-q-btn:hover, .qa-q-btn.active {
+      background: var(--blue-main);
+      border-color: var(--blue-main);
+      color: var(--white);
+    }
+    .chatbot-panel {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F4F8FF 100%);
+      border: 3px solid var(--blue-main);
+      border-radius: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      min-height: 0;
+      position: relative;
+    }
+    .chatbot-header {
+      background: linear-gradient(90deg, #0752E8 0%, #082461 100%);
+      color: var(--white);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--yellow-main);
+    }
+    .chatbot-avatar-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--yellow-main);
+      color: var(--blue-dark);
+      font-size: 24px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--white);
+      flex-shrink: 0;
+    }
+    .chatbot-messages {
+      flex: 1;
+      padding: 14px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .chat-msg-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      max-width: 92%;
+    }
+    .chat-msg-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    .chat-bubble {
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 24px;
+      line-height: 1.38;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    }
+    .chat-msg-row.bot .chat-bubble {
+      background: var(--white);
+      border: 2px solid #B8CEFF;
+      color: var(--text-main);
+      border-top-left-radius: 4px;
+    }
+    .chat-msg-row.user .chat-bubble {
+      background: var(--blue-main);
+      color: var(--white);
+      font-weight: bold;
+      border-top-right-radius: 4px;
+    }
+    .chat-keyword-tag {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 18px;
+      color: var(--blue-main);
+      background: var(--blue-soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-weight: bold;
+    }
+    .chat-followups {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed #B8CEFF;
+    }
+    .chat-followups-label {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--text-muted);
+    }
+    .chat-followup-chip {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 19px;
+      font-weight: bold;
+      color: var(--blue-main);
+      background: var(--yellow-soft);
+      border: 2px solid var(--yellow-dark);
+      border-radius: 999px;
+      padding: 4px 14px;
+      cursor: pointer;
+      transition: transform var(--transition-fast), background var(--transition-fast);
+    }
+    .chat-followup-chip:hover {
+      background: var(--yellow-main);
+      transform: translateY(-2px);
+    }
+    .chatbot-input-bar {
+      padding: 10px 14px;
+      background: var(--white);
+      border-top: 2px solid #D0E1FF;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .chatbot-text-input {
+      flex: 1;
+      height: 50px;
+      border-radius: 999px;
+      border: 2px solid var(--blue-main);
+      padding: 0 20px;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 23px;
+      color: var(--text-main);
+      outline: none;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .chatbot-text-input:focus {
+      box-shadow: 0 0 0 3px rgba(7, 82, 232, 0.22);
+    }
+    .chatbot-send-btn {
+      height: 50px;
+      padding: 0 24px;
+      border-radius: 999px;
+      border: none;
+      background: var(--yellow-main);
+      color: var(--text-main);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      border: 2px solid var(--yellow-dark);
+      transition: transform var(--transition-fast);
+    }
+    .chatbot-send-btn:hover {
+      transform: scale(1.03);
+    }
+    .api-modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 36, 97, 0.82);
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .api-modal-box {
+      background: var(--white);
+      border: 4px solid var(--yellow-main);
+      border-radius: 22px;
+      padding: 22px 26px;
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    }
+
+    /* ================= MÀN 9: KẾT THÚC & HUY HIỆU ================= */
+    .finish-layout {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 28px;
+      height: 100%;
+      align-items: center;
+    }
+    .finish-badge-card {
+      background: radial-gradient(circle at 50% 40%, #FFF9DB 0%, #FFE680 100%);
+      border: 4px solid var(--yellow-dark);
+      border-radius: 26px;
+      padding: 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 14px;
+      box-shadow: 0 12px 28px rgba(217, 155, 0, 0.25);
+    }
+    .finish-badge-card img.badge-hero {
+      width: 270px;
+      height: 250px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+    }
+    .finish-summary-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      gap: 14px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition-duration: 0ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Thông báo gợi ý xoay ngang khi cầm điện thoại dọc -->
+  <div id="portrait-notice">
+    <div class="rotate-box">
+      <h2>Hãy xoay ngang màn hình</h2>
+      <p>Bài giảng được thiết kế tỉ lệ chuẩn 16:9. Em hãy xoay ngang điện thoại hoặc máy tính bảng để quan sát hình ảnh rõ nhất nhé!</p>
+      <button type="button" onclick="document.getElementById('portrait-notice').classList.add('dismissed')">Tiếp tục xem</button>
+    </div>
+  </div>
+
+  <!-- Khung Canvas Logic 1600 x 900 -->
+  <div id="stage-wrapper" role="application" aria-label="Bài giảng E-learning Tự nhiên và Xã hội 3 - Bài 10 Tiết 1">
+    <!-- HEADER GỌN GÀNG 1 DÒNG -->
+    <header id="app-header">
+      <div class="header-left">
+        <span class="subject-pill">Tự nhiên và Xã hội 3</span>
+        <div class="header-lesson-title">Bài 10: Hoạt động sản xuất thủ công và công nghiệp (Tiết 1)</div>
+      </div>
+
+      <div class="header-center" aria-label="Tiến độ khám phá bài học">
+        <span class="progress-label">Tiến độ:</span>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar-aria">
+          <div class="progress-fill" id="progress-fill-bar"></div>
+        </div>
+        <span class="progress-pct" id="progress-percent-text">0%</span>
+      </div>
+
+      <div class="header-right">
+        <button type="button" class="icon-action-btn" id="btn-replay-audio" onclick="replayCurrentAudio()" title="Nghe lại">
+          <img src="ui/08_icon_audio.png" alt="Nghe lại" />
+          <span>Nghe lại</span>
+        </button>
+        <button type="button" class="icon-action-btn" id="btn-mute-audio" onclick="toggleMuteAudio()" title="Bật hoặc tắt âm thanh">
+          <img src="ui/08_icon_audio.png" alt="Âm thanh" id="mute-icon-img" />
+          <span id="mute-label-text">Bật âm</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- NỘI DUNG CHÍNH (ĐÃ BỎ Ô TEXT LỜI THOẠI) -->
+    <main id="app-main">
+      <div id="screen-container" class="content-panel"></div>
+    </main>
+
+    <!-- FOOTER GỌN GÀNG (NÚT HOME CHỈ CÓ ICON, BỎ CHỮ TRANG BÌA) -->
+    <footer id="app-footer">
+      <div class="footer-left">
+        <button type="button" class="nav-icon-btn icon-only" id="btn-home" onclick="goHomeScreen()" title="Về trang bìa" aria-label="Về trang bìa">
+          <img src="ui/09_icon_home.png" alt="Về trang bìa" />
+        </button>
+        <button type="button" class="nav-icon-btn" id="btn-back" onclick="goPrevScreen()" title="Quay lại">
+          <img src="ui/06_icon_back.png" alt="Quay lại" />
+          <span>Quay lại</span>
+        </button>
+      </div>
+
+      <div class="footer-center" id="footer-guide-text">
+        Nhấn nút Bắt đầu để bước vào Hoạt động Khám phá
+      </div>
+
+      <div class="footer-right">
+        <div id="footer-primary-action"></div>
+        <div class="page-indicator" id="page-num-label">01 / 09</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    /*************************************************************************
+     * 1. KỊCH BẢN LỜI THOẠI 46 MÃ ÂM THANH
+     *************************************************************************/
+    const VOICE_SCRIPTS = {
+      "00_bia": "Chào mừng các em học sinh thân yêu đến với bài học môn Tự nhiên và Xã hội lớp Ba của Trường Tiểu học Huỳnh Thúc Kháng.",
+      "01_mo_dau": "Các em thân mến! Chiếc bình gốm, chiếc giỏ tre hay tấm vải nhiều màu sắc được làm ra như thế nào nhỉ?",
+      "02_nhiem_vu": "Hành trình khám phá của chúng mình gồm có ba bước: Quan sát, Khám phá và Thử tài.",
+      "03_kham_pha": "Em hãy quan sát bốn bức tranh trên màn hình và chọn một bức tranh để tìm hiểu nhé!",
+      "04_lam_gom": "Đây là nghề làm gốm.",
+      "05_may_tre": "Đây là nghề mây tre đan.",
+      "06_det_vai": "Đây là nghề dệt vải thổ cẩm.",
+      "07_dong_ho": "Đây là nghề làm tranh Đông Hồ.",
+      "08_sau_the": "Nếu đã hiểu, em hãy chọn Đã hiểu để trở về màn hình khám phá.",
+      "09_du_bon_nghe": "Em đã khám phá đủ bốn nghề thủ công rồi! Hãy nhấn Kiểm tra kiến thức nhé!",
+      "10_kiem_tra": "Ở mỗi câu hỏi, em hãy chọn một đáp án đúng nhất rồi nhấn Trả lời.",
+      "11_cau_1": "Câu 1: Nghề thủ công nào tạo ra những chiếc bình, bát, đĩa bằng gốm?",
+      "12_dung_1": "Chính xác! Nghề làm gốm tạo ra bình, bát, đĩa và nhiều đồ dùng bằng gốm quen thuộc.",
+      "13_cau_2": "Câu 2: Nghề mây tre đan sử dụng nguyên liệu chính nào sau đây?",
+      "14_dung_2": "Đúng rồi đấy! Mây và tre chính là những nguyên liệu dùng trong nghề mây tre đan.",
+      "15_cau_3": "Câu 3: Sản phẩm chính của nghề dệt thổ cẩm là gì?",
+      "16_dung_3": "Rất tốt! Nghề dệt thổ cẩm tạo ra những tấm vải có hoa văn đẹp mắt.",
+      "17_cau_4": "Câu 4: Nghề làm tranh Đông Hồ tạo ra sản phẩm nào dưới đây?",
+      "18_dung_4": "Chính xác! Sản phẩm của nghề làm tranh Đông Hồ chính là những bức tranh dân gian.",
+      "19_thu_lai": "Câu trả lời này chưa chính xác rồi. Em hãy suy nghĩ thêm và thử lại nhé!",
+      "20_chua_chon": "Em hãy chọn một đáp án trước khi nhấn nút Trả lời nhé!",
+      "21_xong_kiem_tra": "Chúc mừng em đã hoàn thành phần kiểm tra!",
+      "22_ich_loi": "Các sản phẩm thủ công giúp ích gì cho cuộc sống? Em hãy chọn từng hình để tìm hiểu nhé!",
+      "23_ich_loi_gom": "Ích lợi của sản phẩm gốm.",
+      "24_ich_loi_vai": "Ích lợi của sản phẩm thổ cẩm.",
+      "25_ich_loi_tre": "Ích lợi của sản phẩm mây tre đan.",
+      "26_ich_loi_tranh": "Ích lợi của tranh dân gian Đông Hồ.",
+      "27_ghi_nho": "Ghi nhớ trọng tâm về hoạt động sản xuất thủ công.",
+      "28_mo_rong": "Tìm hiểu thêm các nghề thủ công khác.",
+      "29_non_la": "Nghề làm nón lá.",
+      "30_banh_trang": "Nghề làm bánh tráng.",
+      "31_do_go": "Nghề làm đồ gỗ.",
+      "32_dan_lat": "Nghề đan lát.",
+      "33_vao_game": "Chào mừng các em đến với trò chơi Nghệ nhân nhí tài ba!",
+      "34_game_1": "Thử thách 1.",
+      "35_game_2": "Thử thách 2.",
+      "36_game_3": "Thử thách 3.",
+      "37_game_4": "Thử thách 4.",
+      "38_game_5": "Thử thách 5.",
+      "39_game_dung": "Hoan hô! Em đã vượt qua thử thách và nhận được thêm một ngôi sao vàng.",
+      "40_game_du_hai": "Ở thử thách này, em cần chọn đủ hai đáp án đúng nhé!",
+      "41_game_chua_ghep": "Em hãy ghép đủ ba cặp sản phẩm và tên nghề trước khi nhấn Kiểm tra nhé!",
+      "42_huy_hieu": "Chúc mừng em đã hoàn thành cả năm thử thách và nhận được huy hiệu Nghệ nhân nhí tài ba!",
+      "43_hoi_dap": "Góc hỏi đáp cùng em.",
+      "44_hoi_dap_san": "Góc hỏi đáp cùng em.",
+      "45_ket_thuc": "Chúc mừng các em đã hoàn thành rất tốt hoạt động khám phá!"
+    };
+
+    /*************************************************************************
+     * 2. DỮ LIỆU KIẾN THỨC BÀI 10 (SGK HÌNH 2-5, HÌNH 6-9, MỞ RỘNG, QUIZ, GAME)
+     *************************************************************************/
+    const CRAFTS_SGK = [
+      {
+        id: "gom",
+        fig: "Hình 2",
+        name: "Làm gốm",
+        audioCode: "04_lam_gom",
+        img: "sgk/hinh_2_lam_gom.png",
+        shortAction: "Người thợ nặn đất sét và tạo hình sản phẩm gốm",
+        material: "Đất sét dẻo, nước, bàn xoay và lò nung.",
+        process: "Nhào đất sét, dùng bàn tay khéo léo tạo hình rồi nung chín trong lò.",
+        products: "Bình gốm, bát, đĩa, ấm chén, chậu hoa phục vụ sinh hoạt và trang trí."
+      },
+      {
+        id: "maytre",
+        fig: "Hình 3",
+        name: "Mây tre đan",
+        audioCode: "05_may_tre",
+        img: "sgk/hinh_3_may_tre_dan.png",
+        shortAction: "Người thợ chẻ nan mây, tre và đan thành đồ dùng",
+        material: "Cây mây, cây tre, cây nứa tự nhiên.",
+        process: "Chẻ mây, tre thành các nan mỏng, phơi khô rồi đan khéo léo bằng tay.",
+        products: "Giỏ tre, rổ, rá, nong, nia dùng để đựng đồ đạc hoặc trang trí."
+      },
+      {
+        id: "thocam",
+        fig: "Hình 4",
+        name: "Dệt vải thổ cẩm",
+        audioCode: "06_det_vai",
+        img: "sgk/hinh_4_det_tho_cam.png",
+        shortAction: "Người thợ dệt những sợi chỉ màu trên khung cửi",
+        material: "Các sợi bông, sợi chỉ nhuộm nhiều màu sắc.",
+        process: "Sử dụng khung dệt thủ công, kết hợp các sợi chỉ màu tạo hoa văn đẹp.",
+        products: "Tấm vải thổ cẩm dùng để may quần áo, làm khăn, túi xách."
+      },
+      {
+        id: "dongho",
+        fig: "Hình 5",
+        name: "Làm tranh Đông Hồ",
+        audioCode: "07_dong_ho",
+        img: "sgk/hinh_5_tranh_dong_ho.png",
+        shortAction: "Người thợ dùng bản khắc gỗ in tranh dân gian lên giấy",
+        material: "Giấy dó, màu tự nhiên và các bản khắc gỗ.",
+        process: "Quét màu lên bản khắc gỗ rồi in từng lớp màu lên giấy dó.",
+        products: "Tranh dân gian Đông Hồ dùng để trang trí và giữ gìn nét đẹp văn hóa."
+      }
+    ];
+
+    const BENEFITS_SGK = [
+      {
+        id: "ben_gom",
+        fig: "Hình 6",
+        name: "Sản phẩm nghề làm gốm",
+        audioCode: "23_ich_loi_gom",
+        img: "sgk/hinh_6_do_gom.png",
+        products: "Ấm chén, bát, đĩa, lọ hoa bằng gốm",
+        benefit: "Đựng thức ăn, pha trà trong sinh hoạt hằng ngày; dùng cắm hoa và trang trí cho ngôi nhà thêm ấm cúng, đẹp mắt."
+      },
+      {
+        id: "ben_vai",
+        fig: "Hình 7",
+        name: "Sản phẩm nghề dệt thổ cẩm",
+        audioCode: "24_ich_loi_vai",
+        img: "sgk/hinh_7_tho_cam.png",
+        products: "Vải thổ cẩm, túi đeo, khăn quàng, trang phục",
+        benefit: "May quần áo, làm khăn, túi xách phục vụ cuộc sống và thể hiện nét đẹp văn hóa đặc trưng của đồng bào các dân tộc."
+      },
+      {
+        id: "ben_tre",
+        fig: "Hình 8",
+        name: "Sản phẩm nghề mây tre đan",
+        audioCode: "25_ich_loi_tre",
+        img: "sgk/hinh_8_may_tre.png",
+        products: "Giỏ tre, rổ, rá, lồng bàn, hộp mây tre",
+        benefit: "Giúp đựng rau củ, thực phẩm, đồ dùng gọn gàng trong gia đình; thân thiện với môi trường và dùng để trang trí."
+      },
+      {
+        id: "ben_tranh",
+        fig: "Hình 9",
+        name: "Sản phẩm nghề tranh Đông Hồ",
+        audioCode: "26_ich_loi_tranh",
+        img: "sgk/hinh_9_tranh_dong_ho.png",
+        products: "Bức tranh dân gian Đông Hồ (Đám cưới chuột)",
+        benefit: "Treo trang trí nhà cửa dịp lễ, Tết và giúp chúng ta tìm hiểu, trân trọng, gìn giữ nét đẹp văn hóa dân gian Việt Nam."
+      }
+    ];
+
+    const EXTENDED_CRAFTS = [
+      {
+        id: "ext_nonla",
+        name: "Nghề làm nón lá",
+        audioCode: "29_non_la",
+        img: "ext/ext_1_non_la.jpg",
+        material: "Lá nón (lá cọ), nan tre chuốt tròn, sợi cước hoặc chỉ khâu.",
+        desc: "Người thợ xếp từng tàu lá nón lên khung tre rồi dùng kim chỉ khâu đều tay tạo thành chiếc nón lá truyền thống giúp che nắng, che mưa."
+      },
+      {
+        id: "ext_banhtrang",
+        name: "Nghề làm bánh tráng",
+        audioCode: "30_banh_trang",
+        img: "ext/ext_2_banh_trang.jpg",
+        material: "Bột gạo xay mịn pha với nước, mè (vừng), phên tre phơi bánh.",
+        desc: "Người thợ tráng bột gạo thành lớp mỏng tròn đều trên nồi hơi nóng, sau đó trải lên phên tre đem phơi nắng cho khô để cuốn thức ăn hoặc nướng giòn."
+      },
+      {
+        id: "ext_dogo",
+        name: "Nghề làm đồ gỗ",
+        audioCode: "31_do_go",
+        img: "ext/ext_3_do_go.jpg",
+        material: "Gỗ tự nhiên, đục, bào, cưa và dụng cụ chạm khắc thủ công.",
+        desc: "Từ những khối gỗ tự nhiên, người thợ mộc khéo léo cưa, bào, đục đẽo và chạm khắc tạo ra bàn, ghế, tủ, tượng gỗ phục vụ học tập, sinh hoạt."
+      },
+      {
+        id: "ext_danlat",
+        name: "Nghề đan lát",
+        audioCode: "32_dan_lat",
+        img: "ext/ext_4_dan_lat.jpg",
+        material: "Nan tre, nan nứa, nan giang được chẻ mỏng và phơi dẻo.",
+        desc: "Người thợ dùng đôi bàn tay khéo léo đan cài các nan tre, nan nứa vào nhau tạo thành rổ, rá, nong, nia, giỏ đựng rất bền đẹp và thân thiện môi trường."
+      }
+    ];
+
+    const QUIZ_QUESTIONS = [
+      {
+        num: 1,
+        audioAsk: "11_cau_1",
+        audioOk: "12_dung_1",
+        img: "sgk/hinh_2_lam_gom.png",
+        caption: "Hình 2 trong SGK",
+        question: "Câu 1: Nghề thủ công nào tạo ra những chiếc bình, bát, đĩa bằng gốm?",
+        options: ["Làm gốm", "Dệt vải", "Mây tre đan"],
+        correctIndex: 0
+      },
+      {
+        num: 2,
+        audioAsk: "13_cau_2",
+        audioOk: "14_dung_2",
+        img: "sgk/hinh_3_may_tre_dan.png",
+        caption: "Hình 3 trong SGK",
+        question: "Câu 2: Nghề mây tre đan sử dụng nguyên liệu chính nào sau đây?",
+        options: ["Đất sét", "Mây và tre", "Sợi chỉ"],
+        correctIndex: 1
+      },
+      {
+        num: 3,
+        audioAsk: "15_cau_3",
+        audioOk: "16_dung_3",
+        img: "sgk/hinh_4_det_tho_cam.png",
+        caption: "Hình 4 trong SGK",
+        question: "Câu 3: Sản phẩm chính của nghề dệt thổ cẩm là gì?",
+        options: ["Giỏ tre", "Tranh dân gian", "Vải thổ cẩm"],
+        correctIndex: 2
+      },
+      {
+        num: 4,
+        audioAsk: "17_cau_4",
+        audioOk: "18_dung_4",
+        img: "sgk/hinh_5_tranh_dong_ho.png",
+        caption: "Hình 5 trong SGK",
+        question: "Câu 4: Nghề làm tranh Đông Hồ tạo ra sản phẩm nào dưới đây?",
+        options: ["Tranh dân gian", "Đồ gốm", "Khăn thổ cẩm"],
+        correctIndex: 0
+      }
+    ];
+
+    const QA_PRESETS = [
+      {
+        q: "1. Vì sao gọi là hoạt động sản xuất thủ công?",
+        a: "Vì sản phẩm được làm ra chủ yếu bằng đôi bàn tay khéo léo của người thợ cùng với những công cụ lao động đơn giản, không phải do dây chuyền máy móc tự động làm hết.",
+        tag: "Khái niệm trọng tâm"
+      },
+      {
+        q: "2. Vì sao đồ gốm sau khi nặn xong phải đem nung trong lò?",
+        a: "Đất sét khi mới nặn còn mềm và dễ tan trong nước. Khi đem nung trong lò ở nhiệt độ cao, đất sét sẽ kết khối cứng cáp, bền chắc và giữ được hình dáng đẹp lâu dài.",
+        tag: "Nghề làm gốm"
+      },
+      {
+        q: "3. Hoa văn trên vải thổ cẩm có ý nghĩa gì đặc biệt?",
+        a: "Mỗi hoa văn trên vải thổ cẩm thường mô phỏng hoa lá, chim muông, núi rừng và thể hiện nét đẹp văn hóa truyền thống rất đáng tự hào của đồng bào các dân tộc.",
+        tag: "Nghề dệt thổ cẩm"
+      },
+      {
+        q: "4. Tranh Đông Hồ được làm từ giấy và màu gì?",
+        a: "Tranh Đông Hồ được in trên giấy dó quét lớp điệp óng ánh (làm từ vỏ sò, vỏ điệp giã nhỏ), còn màu vẽ lấy từ tự nhiên như màu đen than lá tre, màu vàng hoa hòe, màu đỏ sỏi son.",
+        tag: "Nghề tranh Đông Hồ"
+      },
+      {
+        q: "5. Sản xuất thủ công khác sản xuất công nghiệp ở điểm nào?",
+        a: "Sản xuất thủ công làm chủ yếu bằng tay và dụng cụ đơn giản nên mỗi sản phẩm mang nét khéo léo riêng; còn sản xuất công nghiệp dùng máy móc hiện đại trong nhà máy để làm ra số lượng rất lớn.",
+        tag: "So sánh mở rộng"
+      },
+      {
+        q: "6. Em có thể làm gì để giữ gìn các sản phẩm thủ công ở nhà?",
+        a: "Em nên cầm nắm đồ gốm cẩn thận để tránh rơi vỡ, cất giữ rổ tre ở nơi khô ráo sau khi rửa sạch, và giữ gìn quần áo, khăn túi luôn sạch đẹp.",
+        tag: "Thái độ & Bảo quản"
+      }
+    ];
+
+    /*************************************************************************
+     * 3. TRẠNG THÁI ỨNG DỤNG (STATE) & TIẾN ĐỘ THỰC
+     *************************************************************************/
+    const state = {
+      screen: "cover",
+      activeCraftId: null,
+      exploredCrafts: {},
+      duBonNghePlayed: false,
+      quizIndex: 0,
+      quizSelected: null,
+      quizAnswered: {},
+      quizFeedback: null,
+      exploredBenefits: {},
+      activeBenefitId: "ben_gom",
+      exploredExtended: {},
+      activeExtendId: "ext_nonla",
+      memoRead: false,
+      gameIndex: 0,
+      gameStars: [false, false, false, false, false],
+      gameSinglePick: null,
+      gameMultiPicks: {},
+      gameMatchProduct: null,
+      gameMatches: {},
+      gameVerifiedCurrent: false,
+      gameFeedback: null,
+      qaActiveIdx: 0,
+      chatMessages: [
+        {
+          role: "bot",
+          text: "Chào các em học sinh lớp 3/6! Cô là Trợ lý Học tập của cô Hoàng Thị Tâm. Em có thắc mắc gì về các nghề thủ công (làm gốm, mây tre đan, dệt thổ cẩm, tranh Đông Hồ, nón lá, bánh tráng, đồ gỗ...), hãy chạm vào câu hỏi gợi ý bên trái hoặc nhập câu hỏi vào ô bên dưới nhé!",
+          tag: "Trợ lý Cô Hoàng Thị Tâm"
+        }
+      ],
+      showApiModal: false,
+      geminiApiKey: localStorage.getItem("HTK_GEMINI_API_KEY") || "",
+      chatLoading: false,
+      muted: false,
+      currentAudioCode: "nen1"
+    };
+
+    const SCREEN_ORDER = [
+      "cover",
+      "video",
+      "mission",
+      "explore_grid",
+      "quiz",
+      "benefits",
+      "memo",
+      "extend",
+      "game",
+      "qa",
+      "finish"
+    ];
+
+    /* Tính phần trăm tiến độ thực (0% -> 100%) dựa trên đúng các mốc hoàn thành */
+    function computeProgressPercent() {
+      let done = 0;
+      const total = 18;
+      done += Object.keys(state.exploredCrafts).length;
+      done += Object.keys(state.quizAnswered).length;
+      done += Object.keys(state.exploredBenefits).length;
+      if (state.memoRead) done += 1;
+      done += state.gameStars.filter(Boolean).length;
+      return Math.min(100, Math.round((done / total) * 100));
+    }
+
+    function updateProgressBarUI() {
+      const pct = state.screen === "cover" && computeProgressPercent() === 0 ? 0 : computeProgressPercent();
+      document.getElementById("progress-fill-bar").style.width = pct + "%";
+      document.getElementById("progress-percent-text").textContent = pct + "%";
+      document.getElementById("progress-bar-aria").setAttribute("aria-valuenow", String(pct));
+    }
+
+    /*************************************************************************
+     * 4. BỘ ĐIỀU KHIỂN ÂM THANH & NHẠC NỀN TRANG BÌA (nen1.mp3)
+     *************************************************************************/
+    let activeAudioEl = null;
+    let coverBgmEl = null;
+    let queuedNextAudioCode = null;
+
+    function stopAllAudio() {
+      queuedNextAudioCode = null;
+      if (activeAudioEl) {
+        activeAudioEl.pause();
+        activeAudioEl.onended = null;
+        activeAudioEl.onerror = null;
+        activeAudioEl = null;
+      }
+      if (coverBgmEl) {
+        coverBgmEl.pause();
+        coverBgmEl = null;
+      }
+      const vid = document.getElementById("teacher-intro-video");
+      if (vid && state.screen !== "video") {
+        vid.pause();
+      }
+      const replayBtn = document.getElementById("btn-replay-audio");
+      if (replayBtn) replayBtn.classList.remove("speaking");
+    }
+
+    function playCoverBgm() {
+      stopAllAudio();
+      state.currentAudioCode = "nen1";
+      if (state.muted) return;
+
+      const replayBtn = document.getElementById("btn-replay-audio");
+      const bgm = new Audio("audio/nen1.mp3");
+      bgm.loop = true;
+      bgm.volume = 0.45;
+      coverBgmEl = bgm;
+
+      bgm.play().then(() => {
+        if (replayBtn) replayBtn.classList.add("speaking");
+      }).catch(() => {
+        if (replayBtn) replayBtn.classList.remove("speaking");
+      });
+    }
+
+    /* Tự kích hoạt nhạc nền ở trang bìa ngay khi người dùng chạm lần đầu nếu trình duyệt chặn autoplay */
+    document.addEventListener("pointerdown", function unlockCoverBgmOnce() {
+      if (state.screen === "cover" && !state.muted) {
+        if (!coverBgmEl || coverBgmEl.paused) {
+          playCoverBgm();
+        }
+      }
+    }, { passive: true });
+
+    /*************************************************************************
+     * 4b. HIỆU ỨNG ÂM THANH TƯƠNG TÁC (Web Audio - không cần file)
+     *************************************************************************/
+    let sfxCtx = null;
+    function getSfxCtx() {
+      if (!sfxCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        sfxCtx = new AC();
+      }
+      if (sfxCtx.state === "suspended") sfxCtx.resume();
+      return sfxCtx;
+    }
+    function sfxTone(freq, start, dur, type = "sine", vol = 0.18, slideTo = null) {
+      const ctx = getSfxCtx();
+      if (!ctx) return;
+      const t0 = ctx.currentTime + start;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + dur + 0.05);
+    }
+    function playSfx(name) {
+      if (state.muted) return;
+      try {
+        switch (name) {
+          case "click":   sfxTone(880, 0, 0.08, "triangle", 0.12, 1320); break;
+          case "select":  sfxTone(660, 0, 0.09, "sine", 0.16); sfxTone(990, 0.07, 0.12, "sine", 0.14); break;
+          case "pickup":  sfxTone(400, 0, 0.12, "sine", 0.14, 700); break;
+          case "drop":    sfxTone(520, 0, 0.08, "square", 0.08); sfxTone(780, 0.06, 0.14, "triangle", 0.14); break;
+          case "correct": [523, 659, 784, 1047].forEach((f, i) => sfxTone(f, i * 0.09, 0.22, "triangle", 0.16)); break;
+          case "wrong":   sfxTone(300, 0, 0.18, "sawtooth", 0.09, 200); sfxTone(220, 0.16, 0.25, "sawtooth", 0.08, 150); break;
+          case "star":    [784, 988, 1175, 1568, 1976].forEach((f, i) => sfxTone(f, i * 0.07, 0.3, "sine", 0.13)); break;
+          case "fanfare": [523, 659, 784, 659, 784, 1047].forEach((f, i) => sfxTone(f, i * 0.12, 0.3, "triangle", 0.15)); break;
+          case "page":    sfxTone(1200, 0, 0.1, "sine", 0.07, 600); break;
+          case "send":    sfxTone(600, 0, 0.1, "sine", 0.12, 1000); break;
+          case "receive": sfxTone(1000, 0, 0.08, "sine", 0.12); sfxTone(1300, 0.08, 0.12, "sine", 0.1); break;
+        }
+      } catch (e) {}
+    }
+    /* Tiếng "tách" nhẹ cho mọi nút bấm */
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest && e.target.closest("button, .drag-product-card, .drop-craft-slot");
+      if (!el || el.disabled) return;
+      if (el.classList.contains("extend-photo-card") || el.classList.contains("sgk-card-btn") ||
+          el.classList.contains("quiz-option-btn") || el.classList.contains("qa-q-btn")) {
+        playSfx("select");
+      } else if (el.classList.contains("ui-btn-yellow")) {
+        playSfx("page");
+      } else {
+        playSfx("click");
+      }
+    }, true);
+
+    function playAudioCode(code, chainNextCode = null, autoTriggered = true) {
+      stopAllAudio();
+      state.currentAudioCode = code;
+      queuedNextAudioCode = chainNextCode;
+
+      if (state.muted) return;
+      if (code === "nen1") {
+        playCoverBgm();
+        return;
+      }
+
+      const replayBtn = document.getElementById("btn-replay-audio");
+      if (replayBtn) replayBtn.classList.add("speaking");
+
+      const audio = new Audio("audio/" + code + ".mp3");
+      activeAudioEl = audio;
+
+      audio.onended = () => {
+        if (replayBtn) replayBtn.classList.remove("speaking");
+        if (queuedNextAudioCode) {
+          const next = queuedNextAudioCode;
+          queuedNextAudioCode = null;
+          playAudioCode(next, null, false);
+        }
+      };
+
+      audio.onerror = () => {
+        const wavAudio = new Audio("audio/" + code + ".wav");
+        activeAudioEl = wavAudio;
+        wavAudio.onended = audio.onended;
+        wavAudio.onerror = () => {
+          if (replayBtn) replayBtn.classList.remove("speaking");
+        };
+        wavAudio.play().catch(() => {
+          if (replayBtn) replayBtn.classList.remove("speaking");
+        });
+      };
+
+      audio.play().catch(() => {
+        if (replayBtn) replayBtn.classList.remove("speaking");
+      });
+    }
+
+    function replayCurrentAudio() {
+      if (state.screen === "cover") {
+        playCoverBgm();
+        return;
+      }
+      if (state.screen === "video") {
+        const vid = document.getElementById("teacher-intro-video");
+        if (vid) {
+          vid.currentTime = 0;
+          vid.muted = state.muted;
+          vid.play().catch(() => {});
+        }
+        return;
+      }
+      if (state.screen === "explore_detail" && state.activeCraftId) {
+        const craft = CRAFTS_SGK.find(c => c.id === state.activeCraftId);
+        if (craft) {
+          playAudioCode(craft.audioCode, "08_sau_the", false);
+          return;
+        }
+      }
+      playAudioCode(state.currentAudioCode, null, false);
+    }
+
+    function toggleMuteAudio() {
+      state.muted = !state.muted;
+      const label = document.getElementById("mute-label-text");
+      const btn = document.getElementById("btn-mute-audio");
+      const vid = document.getElementById("teacher-intro-video");
+      if (vid) vid.muted = state.muted;
+
+      if (state.muted) {
+        stopAllAudio();
+        label.textContent = "Tắt âm";
+        btn.style.opacity = "0.75";
+      } else {
+        label.textContent = "Bật âm";
+        btn.style.opacity = "1";
+        if (state.screen === "cover") {
+          playCoverBgm();
+        } else if (state.screen !== "video") {
+          playAudioCode(state.currentAudioCode, null, false);
+        }
+      }
+    }
+
+    /*************************************************************************
+     * 5. ĐIỀU HƯỚNG CÁC MÀN HÌNH
+     *************************************************************************/
+    function goHomeScreen() {
+      state.screen = "cover";
+      renderApp(true);
+    }
+
+    function goPrevScreen() {
+      if (state.screen === "explore_detail") {
+        state.screen = "explore_grid";
+        renderApp(false);
+        return;
+      }
+      const idx = SCREEN_ORDER.indexOf(state.screen);
+      if (idx > 0) {
+        state.screen = SCREEN_ORDER[idx - 1];
+        renderApp(false);
+      }
+    }
+
+    function goToScreen(targetScreen, autoPlayIntro = true) {
+      state.screen = targetScreen;
+      renderApp(autoPlayIntro);
+    }
+
+    function renderApp(autoPlayIntro = true) {
+      updateProgressBarUI();
+      const container = document.getElementById("screen-container");
+      const footerGuide = document.getElementById("footer-guide-text");
+      const footerAction = document.getElementById("footer-primary-action");
+      const pageLabel = document.getElementById("page-num-label");
+      const btnBack = document.getElementById("btn-back");
+      const btnHome = document.getElementById("btn-home");
+
+      btnBack.disabled = (state.screen === "cover");
+      btnHome.disabled = (state.screen === "cover");
+      footerAction.innerHTML = "";
+
+      switch (state.screen) {
+        case "cover":
+          pageLabel.textContent = "01 / 09";
+          footerGuide.textContent = "Nhấn nút Bắt đầu để bước vào bài học cùng cô giáo";
+          renderCoverScreen(container, footerAction, autoPlayIntro);
+          break;
+
+        case "video":
+          pageLabel.textContent = "02 / 09";
+          footerGuide.textContent = "Xem video cô giáo giới thiệu mở đầu";
+          renderVideoScreen(container, footerAction, autoPlayIntro);
+          break;
+
+        case "mission":
+          pageLabel.textContent = "03 / 09";
+          footerGuide.textContent = "Nắm rõ 3 bước của hành trình rồi nhấn Bắt đầu khám phá";
+          renderMissionScreen(container, footerAction, autoPlayIntro);
+          break;
+
+        case "explore_grid":
+          pageLabel.textContent = "04 / 09";
+          renderExploreGridScreen(container, footerGuide, footerAction, autoPlayIntro);
+          break;
+
+        case "explore_detail":
+          pageLabel.textContent = "04 / 09";
+          footerGuide.textContent = "Sau khi nghe xong, hãy nhấn Đã hiểu để ghi nhận tiến độ";
+          renderExploreDetailScreen(container, footerAction);
+          break;
+
+        case "quiz":
+          pageLabel.textContent = "05 / 09";
+          renderQuizScreen(container, footerGuide, footerAction, autoPlayIntro);
+          break;
+
+        case "benefits":
+          pageLabel.textContent = "06 / 09";
+          renderBenefitsScreen(container, footerGuide, footerAction, autoPlayIntro);
+          break;
+
+        case "memo":
+          pageLabel.textContent = "06 / 09";
+          renderMemoScreen(container, footerGuide, footerAction, autoPlayIntro);
+          break;
+
+        case "extend":
+          pageLabel.textContent = "06 / 09";
+          renderExtendScreen(container, footerGuide, footerAction, autoPlayIntro);
+          break;
+
+        case "game":
+          pageLabel.textContent = "07 / 09";
+          renderGameScreen(container, footerGuide, footerAction, autoPlayIntro);
+          break;
+
+        case "qa":
+          pageLabel.textContent = "08 / 09";
+          renderQAScreen(container, footerGuide, footerAction, autoPlayIntro);
+          break;
+
+        case "finish":
+          pageLabel.textContent = "09 / 09";
+          renderFinishScreen(container, footerGuide, footerAction, autoPlayIntro);
+          break;
+      }
+    }
+
+    /*************************************************************************
+     * MÀN 1: TRANG BÌA (PHÁT NHẠC NỀN nen1.mp3, BỎ ÂM THANH LỜI THOẠI MỞ ĐẦU)
+     *************************************************************************/
+    function renderCoverScreen(container, footerAction, autoPlayIntro) {
+      if (autoPlayIntro) {
+        playCoverBgm();
+      }
+
+      container.innerHTML = `
+        <div class="cover-layout">
+          <div class="cover-info-box">
+            <div class="cover-org-banner">
+              <span class="org-line1">UBND phường Bình Hưng Hoà</span>
+              <span class="org-line2">Trường Tiểu học Huỳnh Thúc Kháng</span>
+            </div>
+
+            <div class="cover-subject-tag">Môn: Tự nhiên và Xã hội 3</div>
+
+            <h1 class="cover-main-title">
+              BÀI 10: HOẠT ĐỘNG SẢN XUẤT<br/>THỦ CÔNG VÀ CÔNG NGHIỆP
+              <span>(Tiết 1 — Hoạt động Khám phá)</span>
+            </h1>
+
+            <div class="cover-activity-badge">
+              <span>Chủ đề: Tìm hiểu hoạt động sản xuất thủ công</span>
+            </div>
+
+            <div class="cover-teacher-card">
+              <span>Giáo viên: Hoàng Thị Tâm</span>
+              <span style="color:var(--blue-main);">•</span>
+              <span>Lớp: 3/6</span>
+            </div>
+
+            <div class="cover-actions">
+              <button type="button" class="ui-btn ui-btn-blue" onclick="playCoverBgm()">
+                <img src="ui/08_icon_audio.png" alt="" class="btn-icon" />
+                <span>Nhạc nền</span>
+              </button>
+              <button type="button" class="ui-btn ui-btn-yellow" onclick="goToScreen('video', true)">
+                <span>Bắt đầu</span>
+                <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+              </button>
+            </div>
+          </div>
+
+          <div class="cover-showcase" aria-label="Bốn bức tranh nghề thủ công trong sách giáo khoa">
+            <div class="cover-mini-card">
+              <img src="sgk/hinh_2_lam_gom.png" alt="Hình 2: Làm gốm" />
+              <span>Hình 2 • Làm gốm</span>
+            </div>
+            <div class="cover-mini-card">
+              <img src="sgk/hinh_3_may_tre_dan.png" alt="Hình 3: Mây tre đan" />
+              <span>Hình 3 • Mây tre đan</span>
+            </div>
+            <div class="cover-mini-card">
+              <img src="sgk/hinh_4_det_tho_cam.png" alt="Hình 4: Dệt vải thổ cẩm" />
+              <span>Hình 4 • Dệt thổ cẩm</span>
+            </div>
+            <div class="cover-mini-card">
+              <img src="sgk/hinh_5_tranh_dong_ho.png" alt="Hình 5: Làm tranh Đông Hồ" />
+              <span>Hình 5 • Tranh Đông Hồ</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" onclick="goToScreen('video', true)">
+          <span>Bắt đầu</span>
+          <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+        </button>
+      `;
+    }
+
+    /*************************************************************************
+     * MÀN 2: VIDEO GIÁO VIÊN MỞ ĐẦU (CHẠY HẾT VIDEO TỰ QUA MÀN TIẾP THEO)
+     *************************************************************************/
+    function renderVideoScreen(container, footerAction, autoPlayIntro) {
+      stopAllAudio();
+
+      container.innerHTML = `
+        <h2 class="screen-heading" style="font-size:38px; margin-bottom:6px;">Khởi động cùng cô giáo Hoàng Thị Tâm</h2>
+        <div class="video-stage-layout" style="grid-template-columns: 1.38fr 0.62fr;">
+          <div class="video-frame-box" style="background:#000;">
+            <video
+              id="teacher-intro-video"
+              src="video/video.mp4"
+              playsinline
+              controls
+              style="width:100%; height:100%; object-fit:contain; display:block; background:#000;"
+            ></video>
+          </div>
+
+          <div class="video-question-card">
+            <h3>Mục tiêu Hoạt động Khám phá</h3>
+            <div class="video-question-list" style="font-size:25px;">
+              <div class="video-question-item">
+                <strong>1. Nhận biết nghề thủ công:</strong> Quan sát tranh và nêu đúng tên 4 nghề thủ công truyền thống.
+              </div>
+              <div class="video-question-item">
+                <strong>2. Kể tên nguyên liệu & sản phẩm:</strong> Biết người thợ dùng nguyên liệu gì để làm ra sản phẩm nào.
+              </div>
+              <div class="video-question-item">
+                <strong>3. Hiểu ích lợi & Trân trọng:</strong> Nêu được ích lợi của sản phẩm thủ công và biết giữ gìn đồ dùng.
+              </div>
+            </div>
+            <button type="button" class="ui-btn ui-btn-blue" style="width:100%;" onclick="replayCurrentAudio()">
+              <img src="ui/08_icon_audio.png" alt="" class="btn-icon" />
+              <span>Xem lại video</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" onclick="goToScreen('mission', true)">
+          <span>Tiếp theo</span>
+          <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+        </button>
+      `;
+
+      const vid = document.getElementById("teacher-intro-video");
+      if (vid) {
+        vid.muted = state.muted;
+        vid.onended = () => {
+          if (state.screen === "video") {
+            goToScreen("mission", true);
+          }
+        };
+        if (autoPlayIntro) {
+          vid.play().catch(() => {});
+        }
+      }
+    }
+
+    /*************************************************************************
+     * MÀN 3: GIAO NHIỆM VỤ (02_nhiem_vu)
+     *************************************************************************/
+    function renderMissionScreen(container, footerAction, autoPlayIntro) {
+      if (autoPlayIntro) {
+        playAudioCode("02_nhiem_vu", null, false);
+      }
+
+      container.innerHTML = `
+        <div>
+          <h2 class="screen-heading">Hành trình Khám phá gồm 3 bước</h2>
+          <p class="screen-subheading">Em hãy thực hiện lần lượt từng bước để giành huy hiệu Nghệ nhân nhí tài ba nhé!</p>
+        </div>
+
+        <div class="mission-steps-grid">
+          <div class="mission-step-card">
+            <div class="step-number-badge">1</div>
+            <h3>BƯỚC 1: QUAN SÁT</h3>
+            <p>Quan sát 4 bức tranh trong sách giáo khoa (Hình 2, 3, 4, 5) để xem người thợ đang làm gì.</p>
+            <div class="mission-step-tag">4 bức tranh SGK</div>
+          </div>
+
+          <div class="mission-step-card">
+            <div class="step-number-badge">2</div>
+            <h3>BƯỚC 2: KHÁM PHÁ</h3>
+            <p>Chọn từng tranh để tìm hiểu tên nghề, nguyên liệu, sản phẩm và khám phá ích lợi (Hình 6, 7, 8, 9).</p>
+            <div class="mission-step-tag">Ấn "Đã hiểu" từng nghề</div>
+          </div>
+
+          <div class="mission-step-card">
+            <div class="step-number-badge">3</div>
+            <h3>BƯỚC 3: THỬ TÀI</h3>
+            <p>Trả lời 4 câu hỏi kiểm tra và vượt qua 5 thử thách trong trò chơi "Nghệ nhân nhí tài ba".</p>
+            <div class="mission-step-tag">Săn 5 ngôi sao & Huy hiệu</div>
+          </div>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" onclick="goToScreen('explore_grid', true)">
+          <span>Bắt đầu khám phá</span>
+          <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+        </button>
+      `;
+    }
+
+    /*************************************************************************
+     * MÀN 4: LƯỚI KHÁM PHÁ 4 NGHỀ
+     *************************************************************************/
+    function renderExploreGridScreen(container, footerGuide, footerAction, autoPlayIntro) {
+      const doneCount = Object.keys(state.exploredCrafts).length;
+      const allFourDone = (doneCount === 4);
+
+      if (allFourDone && !state.duBonNghePlayed) {
+        state.duBonNghePlayed = true;
+        playAudioCode("09_du_bon_nghe", null, false);
+      } else if (autoPlayIntro && doneCount === 0) {
+        playAudioCode("03_kham_pha", null, false);
+      }
+
+      footerGuide.textContent = allFourDone
+        ? "Đã khám phá đủ 4/4 nghề! Hãy nhấn Kiểm tra kiến thức để tiếp tục."
+        : `Đã khám phá ${doneCount}/4 nghề • Hãy chạm vào từng bức tranh và nhấn "Đã hiểu"`;
+
+      const cardsHTML = CRAFTS_SGK.map(craft => {
+        const isDone = Boolean(state.exploredCrafts[craft.id]);
+        return `
+          <button type="button" class="sgk-card-btn" onclick="openCraftDetail('${craft.id}')" aria-label="${craft.fig}: ${craft.name}">
+            <img src="ui/03_item_card.png" alt="" class="sgk-card-frame" />
+            <div class="sgk-card-photo-wrap">
+              <img src="${craft.img}" alt="${craft.fig} - ${craft.name}" class="sgk-crop-img" />
+              <div class="sgk-card-side-summary">
+                <span class="sgk-card-num-badge">${craft.fig} SGK</span>
+                <div class="sgk-card-prompt">${craft.shortAction}</div>
+                <div class="sgk-card-hint">${isDone ? "✓ Đã tìm hiểu xong" : "▶ Chạm để tìm hiểu"}</div>
+              </div>
+            </div>
+            <div class="sgk-card-caption">${craft.fig} · ${craft.name}</div>
+            ${isDone ? `<img src="ui/11_check.png" alt="Đã hoàn thành" class="sgk-card-check" />` : ""}
+          </button>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; padding: 0 28px;">
+          <h2 class="screen-heading" style="margin:0; font-size:40px;">Cùng khám phá bốn nghề thủ công</h2>
+          <div style="font-size:25px; font-weight:bold; color:${allFourDone ? 'var(--green-done)' : 'var(--blue-main)'}; background:var(--blue-soft); padding:6px 20px; border-radius:999px; border:2px solid currentColor;">
+            Hoàn thành: ${doneCount} / 4 nghề
+          </div>
+        </div>
+        <div class="craft-grid-2x2">
+          ${cardsHTML}
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" ${allFourDone ? "" : "disabled"} onclick="goToScreen('quiz', true)">
+          <span>Kiểm tra kiến thức</span>
+          <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+        </button>
+      `;
+    }
+
+    function openCraftDetail(craftId) {
+      state.activeCraftId = craftId;
+      state.screen = "explore_detail";
+      renderApp(false);
+      const craft = CRAFTS_SGK.find(c => c.id === craftId);
+      if (craft) {
+        playAudioCode(craft.audioCode, "08_sau_the", false);
+      }
+    }
+
+    /*************************************************************************
+     * MÀN CHI TIẾT TỪNG NGHỀ (60% ẢNH SGK - 40% TỪ KHÓA)
+     *************************************************************************/
+    function renderExploreDetailScreen(container, footerAction) {
+      const craft = CRAFTS_SGK.find(c => c.id === state.activeCraftId) || CRAFTS_SGK[0];
+      const isDone = Boolean(state.exploredCrafts[craft.id]);
+
+      container.innerHTML = `
+        <div class="detail-view-layout">
+          <div class="detail-photo-column">
+            <div class="detail-photo-frame">
+              <img src="${craft.img}" alt="${craft.fig} - ${craft.name}" />
+            </div>
+            <div class="detail-photo-caption-bar">
+              <span class="fig-label">${craft.fig} · Nghề ${craft.name.toLowerCase()}</span>
+              <span style="font-size:22px; color:var(--text-muted); font-weight:bold;">Ảnh gốc SGK Tự nhiên và Xã hội 3</span>
+            </div>
+          </div>
+
+          <div class="detail-keywords-column">
+            <div class="keyword-box-list">
+              <div class="keyword-item">
+                <div class="keyword-label">1. Tên nghề thủ công</div>
+                <div class="keyword-value">Nghề ${craft.name.toLowerCase()}</div>
+              </div>
+              <div class="keyword-item item-yellow">
+                <div class="keyword-label">2. Nguyên liệu & Cách làm</div>
+                <div class="keyword-value">${craft.process}</div>
+              </div>
+              <div class="keyword-item item-green">
+                <div class="keyword-label">3. Sản phẩm & Ích lợi</div>
+                <div class="keyword-value">${craft.products}</div>
+              </div>
+            </div>
+
+            <div class="detail-action-row">
+              <button type="button" class="ui-btn ui-btn-blue" onclick="playAudioCode('${craft.audioCode}', '08_sau_the', false)">
+                <img src="ui/08_icon_audio.png" alt="" class="btn-icon" />
+                <span>Nghe lại</span>
+              </button>
+              <button type="button" class="ui-btn ui-btn-yellow" onclick="markCraftUnderstood('${craft.id}')">
+                <img src="ui/11_check.png" alt="" class="btn-icon" />
+                <span>${isDone ? "Đã hiểu (Quay về)" : "Đã hiểu"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" onclick="markCraftUnderstood('${craft.id}')">
+          <img src="ui/11_check.png" alt="" class="btn-icon" />
+          <span>Đã hiểu</span>
+        </button>
+      `;
+    }
+
+    function markCraftUnderstood(craftId) {
+      state.exploredCrafts[craftId] = true;
+      state.screen = "explore_grid";
+      renderApp(false);
+    }
+
+    /*************************************************************************
+     * MÀN 5: KIỂM TRA KIẾN THỨC (4 CÂU HỎI - ĐÁP ÁN A, B, C, A)
+     *************************************************************************/
+    function renderQuizScreen(container, footerGuide, footerAction, autoPlayIntro) {
+      const qObj = QUIZ_QUESTIONS[state.quizIndex];
+      const isCurrentCorrect = Boolean(state.quizAnswered[state.quizIndex]);
+      const letters = ["A", "B", "C"];
+
+      if (autoPlayIntro) {
+        if (state.quizIndex === 0 && Object.keys(state.quizAnswered).length === 0 && !state.quizFeedback) {
+          playAudioCode("10_kiem_tra", qObj.audioAsk, false);
+        } else {
+          playAudioCode(qObj.audioAsk, null, false);
+        }
+      }
+
+      footerGuide.textContent = isCurrentCorrect
+        ? "Chính xác! Hãy nhấn Tiếp theo để sang nội dung mới."
+        : "Chọn một đáp án A, B hoặc C rồi nhấn nút Trả lời";
+
+      const pillsHTML = QUIZ_QUESTIONS.map((item, idx) => {
+        const cls = idx === state.quizIndex ? "active" : (state.quizAnswered[idx] ? "done" : "");
+        return `<span class="quiz-pill ${cls}">Câu ${idx + 1} ${state.quizAnswered[idx] ? "✓" : ""}</span>`;
+      }).join("");
+
+      const optionsHTML = qObj.options.map((optText, idx) => {
+        let stateCls = "";
+        if (isCurrentCorrect && idx === qObj.correctIndex) {
+          stateCls = "correct";
+        } else if (state.quizSelected === idx) {
+          stateCls = state.quizFeedback === "wrong" ? "wrong" : "selected";
+        }
+        return `
+          <button type="button" class="quiz-option-btn ${stateCls}" onclick="selectQuizOption(${idx})" ${isCurrentCorrect ? "disabled" : ""}>
+            <span class="option-letter">${letters[idx]}</span>
+            <span>${optText}</span>
+          </button>
+        `;
+      }).join("");
+
+      let feedbackHTML = `<div class="quiz-feedback-bar fb-neutral"><span>Hãy chọn một đáp án rồi nhấn nút Trả lời nhé!</span></div>`;
+      if (state.quizFeedback === "empty") {
+        feedbackHTML = `<div class="quiz-feedback-bar fb-err"><span>⚠ Em hãy chọn một đáp án trước khi nhấn nút Trả lời nhé!</span></div>`;
+      } else if (state.quizFeedback === "wrong") {
+        feedbackHTML = `<div class="quiz-feedback-bar fb-err"><span>✗ Chưa chính xác rồi! Em hãy quan sát tranh và chọn lại nhé.</span></div>`;
+      } else if (isCurrentCorrect) {
+        feedbackHTML = `<div class="quiz-feedback-bar fb-ok"><span>✓ ${VOICE_SCRIPTS[qObj.audioOk]}</span></div>`;
+      }
+
+      container.innerHTML = `
+        <div class="quiz-layout">
+          <div class="quiz-visual-card">
+            <div class="quiz-step-pills">${pillsHTML}</div>
+            <img src="${qObj.img}" alt="${qObj.caption}" class="quiz-illust" />
+            <div style="font-size:26px; font-weight:bold; color:var(--blue-dark);">${qObj.caption}</div>
+          </div>
+
+          <div class="quiz-QA-column">
+            <div class="quiz-question-box">${qObj.question}</div>
+            <div class="quiz-options-list">${optionsHTML}</div>
+            ${feedbackHTML}
+          </div>
+        </div>
+      `;
+
+      if (!isCurrentCorrect) {
+        footerAction.innerHTML = `
+          <button type="button" class="ui-btn ui-btn-yellow" onclick="submitQuizAnswer()">
+            <img src="ui/11_check.png" alt="" class="btn-icon" />
+            <span>Trả lời</span>
+          </button>
+        `;
+      } else {
+        footerAction.innerHTML = `
+          <button type="button" class="ui-btn ui-btn-yellow" onclick="nextQuizQuestion()">
+            <span>${state.quizIndex < 3 ? "Tiếp theo" : "Sang phần Ích lợi"}</span>
+            <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+          </button>
+        `;
+      }
+    }
+
+    function selectQuizOption(idx) {
+      if (state.quizAnswered[state.quizIndex]) return;
+      state.quizSelected = idx;
+      state.quizFeedback = null;
+      renderApp(false);
+    }
+
+    function submitQuizAnswer() {
+      const qObj = QUIZ_QUESTIONS[state.quizIndex];
+      if (state.quizSelected === null) {
+        state.quizFeedback = "empty";
+        renderApp(false);
+        playSfx("wrong"); playAudioCode("20_chua_chon", null, false);
+        return;
+      }
+      if (state.quizSelected === qObj.correctIndex) {
+        state.quizAnswered[state.quizIndex] = true;
+        state.quizFeedback = "correct"; playSfx("correct");
+        renderApp(false);
+        if (state.quizIndex === 3) {
+          playAudioCode(qObj.audioOk, "21_xong_kiem_tra", false);
+        } else {
+          playAudioCode(qObj.audioOk, null, false);
+        }
+      } else {
+        state.quizFeedback = "wrong";
+        renderApp(false);
+        playSfx("wrong"); playAudioCode("19_thu_lai", null, false);
+      }
+    }
+
+    function nextQuizQuestion() {
+      if (state.quizIndex < 3) {
+        state.quizIndex += 1;
+        state.quizSelected = null;
+        state.quizFeedback = null;
+        renderApp(true);
+      } else {
+        goToScreen("benefits", true);
+      }
+    }
+
+    /*************************************************************************
+     * MÀN 6.1: KHÁM PHÁ ÍCH LỢI (HÌNH 6, 7, 8, 9)
+     *************************************************************************/
+    function renderBenefitsScreen(container, footerGuide, footerAction, autoPlayIntro) {
+      if (autoPlayIntro && Object.keys(state.exploredBenefits).length === 0) {
+        state.exploredBenefits["ben_gom"] = true;
+        playAudioCode("22_ich_loi", "23_ich_loi_gom", false);
+      }
+
+      const activeItem = BENEFITS_SGK.find(b => b.id === state.activeBenefitId) || BENEFITS_SGK[0];
+      const doneCount = Object.keys(state.exploredBenefits).length;
+      const allBenefitsDone = (doneCount === 4);
+
+      footerGuide.textContent = allBenefitsDone
+        ? "Đã xem đủ 4 nhóm sản phẩm! Nhấn Xem Ghi nhớ để tiếp tục."
+        : `Đã tìm hiểu ${doneCount}/4 hình (Hình 6–9 SGK) • Hãy chạm vào từng thẻ bên trái`;
+
+      const listHTML = BENEFITS_SGK.map(item => {
+        const isSelected = (item.id === activeItem.id);
+        const isVisited = Boolean(state.exploredBenefits[item.id]);
+        return `
+          <button type="button" class="quiz-option-btn ${isSelected ? "selected" : ""}" style="padding:12px 18px;" onclick="selectBenefitCard('${item.id}')">
+            <img src="${item.img}" alt="${item.fig}" style="width:110px; height:78px; object-fit:cover; border-radius:10px; border:2px solid var(--yellow-dark); flex-shrink:0;" />
+            <div style="flex:1;">
+              <div style="font-size:22px; color:var(--blue-main);">${item.fig} SGK</div>
+              <div style="font-size:27px;">${item.name}</div>
+            </div>
+            ${isVisited ? `<img src="ui/11_check.png" alt="Đã xem" style="width:36px; height:36px; object-fit:contain;" />` : ""}
+          </button>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <h2 class="screen-heading" style="font-size:38px; margin-bottom:10px;">Ích lợi của các sản phẩm thủ công (Hình 6 – Hình 9)</h2>
+        <div class="detail-view-layout" style="height:calc(100% - 54px);">
+          <div style="display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+            ${listHTML}
+          </div>
+
+          <div class="detail-keywords-column">
+            <div style="display:flex; align-items:center; gap:18px;">
+              <img src="${activeItem.img}" alt="${activeItem.fig}" style="width:260px; height:186px; object-fit:cover; border-radius:16px; border:4px solid var(--yellow-main);" />
+              <div>
+                <span class="sgk-card-num-badge">${activeItem.fig} trong SGK</span>
+                <h3 style="font-size:33px; color:var(--blue-dark); margin-top:10px;">${activeItem.name}</h3>
+              </div>
+            </div>
+
+            <div class="keyword-item item-yellow">
+              <div class="keyword-label">Sản phẩm tiêu biểu</div>
+              <div class="keyword-value">${activeItem.products}</div>
+            </div>
+
+            <div class="keyword-item item-green">
+              <div class="keyword-label">Ích lợi đối với đời sống</div>
+              <div class="keyword-value">${activeItem.benefit}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" ${allBenefitsDone ? "" : "disabled"} onclick="goToScreen('memo', true)">
+          <span>Xem Ghi nhớ</span>
+          <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+        </button>
+      `;
+    }
+
+    function selectBenefitCard(benefitId) {
+      state.activeBenefitId = benefitId;
+      state.exploredBenefits[benefitId] = true;
+      const item = BENEFITS_SGK.find(b => b.id === benefitId);
+      renderApp(false);
+      if (item) {
+        playAudioCode(item.audioCode, null, false);
+      }
+    }
+
+    /*************************************************************************
+     * MÀN 6.2: GHI NHỚ TRỌNG TÂM (27_ghi_nho - TÍCH HỢP 3 HÌNH 3D KHOA HỌC)
+     *************************************************************************/
+    function renderMemoScreen(container, footerGuide, footerAction, autoPlayIntro) {
+      state.memoRead = true;
+      updateProgressBarUI();
+      if (autoPlayIntro) {
+        playAudioCode("27_ghi_nho", null, false);
+      }
+      footerGuide.textContent = "Ghi nhớ nội dung bài học rồi nhấn Tìm hiểu thêm";
+
+      container.innerHTML = `
+        <div>
+          <h2 class="screen-heading" style="font-size:38px; margin-bottom:2px;">Ghi nhớ kiến thức trọng tâm</h2>
+          <p class="screen-subheading" style="font-size:24px; margin-bottom:6px;">Ba điều quan trọng em cần nhớ về hoạt động sản xuất thủ công</p>
+        </div>
+
+        <div class="memo-grid">
+          <div class="memo-card">
+            <div class="memo-card-header">
+              <span class="step-number-badge" style="width:48px; height:48px; font-size:26px;">1</span>
+              <span>Đặc điểm sản xuất</span>
+            </div>
+            <div class="memo-card-illust">
+              <img src="ext/memo_1_dac_diem.jpg" alt="Đặc điểm sản xuất thủ công" />
+            </div>
+            <p>Sản xuất thủ công tạo ra sản phẩm chủ yếu bằng <strong>đôi bàn tay khéo léo của người thợ</strong>, với sự hỗ trợ của những <strong>công cụ đơn giản</strong>.</p>
+          </div>
+
+          <div class="memo-card">
+            <div class="memo-card-header">
+              <span class="step-number-badge" style="width:48px; height:48px; font-size:26px;">2</span>
+              <span>Vai trò & Ích lợi</span>
+            </div>
+            <div class="memo-card-illust">
+              <img src="ext/memo_2_ich_loi.jpg" alt="Vai trò và ích lợi sản phẩm thủ công" />
+            </div>
+            <p>Sản phẩm thủ công phục vụ thiết thực cho <strong>sinh hoạt, trang trí</strong>, giữ gìn nét đẹp văn hóa và <strong>mang lại thu nhập</strong> cho người lao động.</p>
+          </div>
+
+          <div class="memo-card">
+            <div class="memo-card-header">
+              <span class="step-number-badge" style="width:48px; height:48px; font-size:26px;">3</span>
+              <span>Thái độ của em</span>
+            </div>
+            <div class="memo-card-illust">
+              <img src="ext/memo_3_thai_do.jpg" alt="Thái độ giữ gìn sản phẩm thủ công" />
+            </div>
+            <p>Chúng ta cần <strong>trân trọng công sức</strong> của người thợ thủ công, biết <strong>giữ gìn cẩn thận</strong> và sử dụng đồ dùng tiết kiệm.</p>
+          </div>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" onclick="goToScreen('extend', true)">
+          <span>Tìm hiểu thêm</span>
+          <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+        </button>
+      `;
+    }
+
+    /*************************************************************************
+     * MÀN 6.3: TÌM HIỂU THÊM 4 NGHỀ MỞ RỘNG (ẢNH THỰC TẾ TRÊN MẠNG)
+     *************************************************************************/
+    function renderExtendScreen(container, footerGuide, footerAction, autoPlayIntro) {
+      if (autoPlayIntro && Object.keys(state.exploredExtended).length === 0) {
+        state.exploredExtended["ext_nonla"] = true;
+        playAudioCode("28_mo_rong", "29_non_la", false);
+      }
+
+      footerGuide.textContent = "Chạm vào từng bức ảnh để tìm hiểu thêm 4 nghề thủ công truyền thống, sau đó vào Trò chơi";
+      const activeExt = EXTENDED_CRAFTS.find(e => e.id === state.activeExtendId) || EXTENDED_CRAFTS[0];
+
+      const cardsHTML = EXTENDED_CRAFTS.map(ext => {
+        const isSelected = (ext.id === activeExt.id);
+        const isVisited = Boolean(state.exploredExtended[ext.id]);
+        return `
+          <button type="button" class="extend-photo-card ${isSelected ? "selected" : ""}" onclick="selectExtendCraft('${ext.id}')">
+            <div class="extend-photo-box">
+              <img src="${ext.img}" alt="${ext.name}" />
+            </div>
+            <div class="extend-photo-title">
+              <span>${ext.name}</span>
+              ${isVisited ? `<img src="ui/11_check.png" alt="Đã xem" style="width:26px; height:26px; object-fit:contain;" />` : ""}
+            </div>
+          </button>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <div>
+          <h2 class="screen-heading" style="font-size:36px; margin-bottom:2px;">Tìm hiểu thêm một số nghề thủ công truyền thống</h2>
+          <p class="screen-subheading" style="font-size:23px; margin-bottom:8px;">Chạm vào từng thẻ ảnh thực tế để khám phá nguyên liệu và cách làm của người thợ</p>
+        </div>
+
+        <div class="extend-cards-grid">
+          ${cardsHTML}
+        </div>
+
+        <div class="extend-detail-banner">
+          <div class="extend-detail-preview">
+            <img src="${activeExt.img}" alt="${activeExt.name}" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="sgk-card-num-badge">Đang tìm hiểu</span>
+              <span style="font-size:30px; font-weight:bold; color:var(--blue-dark);">${activeExt.name}</span>
+            </div>
+            <div style="font-size:24px; color:var(--blue-main); font-weight:bold;">
+              • Nguyên liệu chính: <span style="color:var(--text-main);">${activeExt.material}</span>
+            </div>
+            <div style="font-size:25px; line-height:1.35; color:var(--text-main); font-weight:bold;">
+              • Cách làm & Ích lợi: ${activeExt.desc}
+            </div>
+          </div>
+          <button type="button" class="ui-btn ui-btn-blue" onclick="playAudioCode('${activeExt.audioCode}', null, false)">
+            <img src="ui/08_icon_audio.png" alt="" class="btn-icon" />
+            <span>Nghe lại</span>
+          </button>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" onclick="goToScreen('game', true)">
+          <span>Vào Trò chơi</span>
+          <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+        </button>
+      `;
+    }
+
+    function selectExtendCraft(extId) {
+      state.activeExtendId = extId;
+      state.exploredExtended[extId] = true;
+      const ext = EXTENDED_CRAFTS.find(e => e.id === extId);
+      renderApp(false);
+      if (ext) {
+        playAudioCode(ext.audioCode, null, false);
+      }
+    }
+
+    /*************************************************************************
+     * MÀN 7: TRÒ CHƠI "NGHỆ NHÂN NHÍ TÀI BA" (5 THỬ THÁCH - 5 NGÔI SAO)
+     *************************************************************************/
+    const GAME_CHALLENGES = [
+      {
+        type: "single",
+        audioAsk: "34_game_1",
+        img: "sgk/hinh_6_do_gom.png",
+        title: "Thử thách 1 / 5: Nhận diện nghề qua sản phẩm",
+        prompt: "Em hãy quan sát sản phẩm gốm trên màn hình. Đây là sản phẩm của nghề nào?",
+        options: ["Làm gốm", "Đan lát", "Dệt vải"],
+        correctIndex: 0
+      },
+      {
+        type: "single",
+        audioAsk: "35_game_2",
+        img: "sgk/hinh_8_may_tre.png",
+        title: "Thử thách 2 / 5: Tìm sản phẩm của nghề mây tre đan",
+        prompt: "Sản phẩm nào dưới đây thuộc nghề mây tre đan?",
+        options: ["Bình gốm", "Giỏ tre", "Tranh Đông Hồ"],
+        correctIndex: 1
+      },
+      {
+        type: "match",
+        audioAsk: "36_game_3",
+        title: "Thử thách 3 / 5: Kéo thả sản phẩm vào đúng nghề thủ công",
+        prompt: "Em hãy kéo từng sản phẩm ở cột trái và thả vào ô nghề phù hợp ở cột phải:"
+      },
+      {
+        type: "multi2",
+        audioAsk: "37_game_4",
+        img: "sgk/sgk_goc_hinh_2_5.png",
+        title: "Thử thách 4 / 5: Chọn đủ HAI ích lợi của sản phẩm thủ công",
+        prompt: "Đâu là HAI ích lợi đúng của sản phẩm thủ công? (Chọn 2 đáp án)",
+        options: ["Phục vụ sinh hoạt", "Tạo thu nhập", "Chỉ để bỏ đi"],
+        correctIndices: [0, 1]
+      },
+      {
+        type: "single",
+        audioAsk: "38_game_5",
+        img: "ui/12_badge.png",
+        title: "Thử thách 5 / 5: Trân trọng công sức người thợ",
+        prompt: "Em cần làm gì để trân trọng công sức của người thợ thủ công?",
+        options: ["Giữ gìn, sử dụng tiết kiệm", "Làm hỏng sản phẩm", "Mua nhiều rồi bỏ đi"],
+        correctIndex: 0
+      }
+    ];
+
+    function renderStarsBarHTML() {
+      const stars = state.gameStars.map((earned, i) => `
+        <img src="ui/10_star.png" alt="Sao ${i + 1}" class="star-icon ${earned ? "earned" : "unearned"}" />
+      `).join("");
+      return `
+        <div class="stars-bar" aria-label="Số ngôi sao đạt được">
+          <span>Sao thưởng:</span>
+          ${stars}
+        </div>
+      `;
+    }
+
+    function renderGameScreen(container, footerGuide, footerAction, autoPlayIntro) {
+      const ch = GAME_CHALLENGES[state.gameIndex];
+      const isStarEarned = state.gameStars[state.gameIndex];
+
+      if (autoPlayIntro) {
+        if (state.gameIndex === 0 && !state.gameStars.some(Boolean) && !state.gameFeedback) {
+          playAudioCode("33_vao_game", ch.audioAsk, false);
+        } else {
+          playAudioCode(ch.audioAsk, null, false);
+        }
+      }
+
+      if (ch.type === "match") {
+        renderGameMatchChallenge(container, footerGuide, footerAction, ch, isStarEarned);
+        return;
+      }
+
+      const letters = ["A", "B", "C"];
+      const optionsHTML = ch.options.map((opt, idx) => {
+        let cls = "";
+        if (ch.type === "single") {
+          if (isStarEarned && idx === ch.correctIndex) cls = "correct";
+          else if (state.gameSinglePick === idx) cls = state.gameFeedback === "wrong" ? "wrong" : "selected";
+        } else if (ch.type === "multi2") {
+          if (isStarEarned && ch.correctIndices.includes(idx)) cls = "correct";
+          else if (state.gameMultiPicks[idx]) cls = state.gameFeedback === "wrong" ? "wrong" : "selected";
+        }
+        return `
+          <button type="button" class="quiz-option-btn ${cls}" onclick="toggleGameOption(${idx})" ${isStarEarned ? "disabled" : ""}>
+            <span class="option-letter">${letters[idx]}</span>
+            <span>${opt}</span>
+          </button>
+        `;
+      }).join("");
+
+      let fbHTML = `<div class="quiz-feedback-bar fb-neutral"><span>${ch.type === "multi2" ? "Hãy chọn đủ 2 đáp án đúng rồi nhấn Kiểm tra" : "Chọn đáp án đúng rồi nhấn Kiểm tra"}</span></div>`;
+      if (state.gameFeedback === "need_two") {
+        fbHTML = `<div class="quiz-feedback-bar fb-err"><span>⚠ Ở thử thách này, em cần chọn đủ HAI đáp án nhé!</span></div>`;
+      } else if (state.gameFeedback === "wrong") {
+        fbHTML = `<div class="quiz-feedback-bar fb-err"><span>✗ Chưa chính xác rồi! Em hãy suy nghĩ và thử lại nhé (không bị trừ sao).</span></div>`;
+      } else if (isStarEarned) {
+        fbHTML = `<div class="quiz-feedback-bar fb-ok"><span>★ Hoan hô! Em đã giành được ngôi sao ở thử thách số ${state.gameIndex + 1}!</span></div>`;
+      }
+
+      footerGuide.textContent = isStarEarned
+        ? "Tuyệt vời! Hãy nhấn Tiếp theo để tiếp tục."
+        : ch.title;
+
+      container.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <h2 class="screen-heading" style="margin:0; font-size:36px;">Trò chơi: Nghệ nhân nhí tài ba</h2>
+          ${renderStarsBarHTML()}
+        </div>
+
+        <div class="quiz-layout" style="height:calc(100% - 58px);">
+          <div class="quiz-visual-card">
+            <div style="font-size:26px; font-weight:bold; color:var(--blue-main);">${ch.title}</div>
+            <img src="${ch.img}" alt="Hình thử thách" class="quiz-illust" style="height:350px;" />
+            <div style="font-size:23px; color:var(--text-muted); font-weight:bold;">Vượt qua cả 5 thử thách để nhận Huy hiệu!</div>
+          </div>
+
+          <div class="quiz-QA-column">
+            <div class="quiz-question-box">${ch.prompt}</div>
+            <div class="quiz-options-list">${optionsHTML}</div>
+            ${fbHTML}
+          </div>
+        </div>
+      `;
+
+      renderGameFooterButtons(footerAction, isStarEarned);
+    }
+
+    /* Thử thách 3: KÉO - THẢ (Drag & Drop + Touch Drag + Chạm ghép) */
+    const MATCH_PRODUCTS = [
+      { id: "p0", label: "Bình, bát đĩa gốm", img: "sgk/hinh_6_do_gom.png", correctCraftIdx: 0 },
+      { id: "p1", label: "Vải, túi thổ cẩm", img: "sgk/hinh_7_tho_cam.png", correctCraftIdx: 1 },
+      { id: "p2", label: "Tranh Đông Hồ", img: "sgk/hinh_9_tranh_dong_ho.png", correctCraftIdx: 2 }
+    ];
+    const MATCH_CRAFTS = [
+      { idx: 0, name: "Nghề làm gốm" },
+      { idx: 1, name: "Nghề dệt vải thổ cẩm" },
+      { idx: 2, name: "Nghề làm tranh Đông Hồ" }
+    ];
+
+    function renderGameMatchChallenge(container, footerGuide, footerAction, ch, isStarEarned) {
+      footerGuide.textContent = isStarEarned
+        ? "Đã ghép đúng cả 3 cặp! Nhấn Tiếp theo để sang Thử thách 4."
+        : "Kéo sản phẩm ở cột trái thả vào ô nghề tương ứng ở cột phải, rồi nhấn Kiểm tra";
+
+      const leftHTML = MATCH_PRODUCTS.map((prod) => {
+        const isPicked = (state.gameMatchProduct === prod.id);
+        const pairedCraftIdx = state.gameMatches[prod.id];
+        const hasPair = (pairedCraftIdx !== undefined);
+        return `
+          <div
+            class="drag-product-card ${isPicked ? "active-pick" : ""} ${hasPair ? "already-placed" : ""}"
+            draggable="${!isStarEarned}"
+            data-prod-id="${prod.id}"
+            ondragstart="onProductDragStart(event, '${prod.id}')"
+            onclick="pickMatchProduct('${prod.id}')"
+          >
+            <div style="display:flex; align-items:center; gap:14px; pointer-events:none;">
+              <img src="${prod.img}" alt="${prod.label}" class="match-thumb" />
+              <div>
+                <div>${prod.label}</div>
+                <div style="font-size:19px; color:${hasPair ? 'var(--green-done)' : 'var(--blue-main)'}; margin-top:2px;">
+                  ${hasPair ? "✓ Đã thả vào: " + MATCH_CRAFTS[pairedCraftIdx].name : "✥ Giữ chuột hoặc ngón tay kéo sang phải"}
+                </div>
+              </div>
+            </div>
+            <span class="drag-handle-pill">${hasPair ? "Đổi vị trí" : "Kéo thả ➔"}</span>
+          </div>
+        `;
+      }).join("");
+
+      const rightHTML = MATCH_CRAFTS.map(craft => {
+        const matchedProd = MATCH_PRODUCTS.find(p => state.gameMatches[p.id] === craft.idx);
+        const hasPair = Boolean(matchedProd);
+        return `
+          <div
+            class="drop-craft-slot ${hasPair ? "filled" : ""}"
+            data-drop-craft="${craft.idx}"
+            ondragover="onCraftDragOver(event)"
+            ondragenter="onCraftDragEnter(event)"
+            ondragleave="onCraftDragLeave(event)"
+            ondrop="onCraftDrop(event, ${craft.idx})"
+            onclick="pickMatchCraft(${craft.idx})"
+          >
+            <div class="drop-craft-name">${craft.name}</div>
+            <div class="drop-zone-box">
+              ${hasPair ? `
+                <div class="dropped-prod-chip">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="${matchedProd.img}" alt="${matchedProd.label}" />
+                    <span style="font-size:24px; font-weight:bold;">${matchedProd.label}</span>
+                  </div>
+                  ${!isStarEarned ? `<button type="button" class="remove-pair-btn" title="Bỏ ghép" onclick="unpairProduct(event, '${matchedProd.id}')">✕</button>` : ""}
+                </div>
+              ` : `
+                <span>⬇ Thả sản phẩm vào đây</span>
+              `}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      let fbHTML = `<div class="quiz-feedback-bar fb-neutral"><span>💡 Mẹo: Em có thể kéo sản phẩm bên trái thả trực tiếp vào ô nét đứt bên phải!</span></div>`;
+      if (state.gameFeedback === "incomplete_match") {
+        fbHTML = `<div class="quiz-feedback-bar fb-err"><span>⚠ Em hãy kéo thả đủ cả 3 sản phẩm vào 3 nghề trước khi nhấn Kiểm tra nhé!</span></div>`;
+      } else if (state.gameFeedback === "wrong") {
+        fbHTML = `<div class="quiz-feedback-bar fb-err"><span>✗ Có sản phẩm ghép chưa đúng nghề rồi! Em hãy kéo thả lại hoặc nhấn dấu ✕ để ghép lại nhé.</span></div>`;
+      } else if (isStarEarned) {
+        fbHTML = `<div class="quiz-feedback-bar fb-ok"><span>★ Tuyệt vời! Em đã kéo thả đúng cả 3 cặp sản phẩm và nghề thủ công!</span></div>`;
+      }
+
+      container.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+          <h2 class="screen-heading" style="margin:0; font-size:35px;">${ch.title}</h2>
+          <div style="display:flex; align-items:center; gap:12px;">
+            ${!isStarEarned && Object.keys(state.gameMatches).length > 0 ? `
+              <button type="button" class="nav-icon-btn" style="height:42px; font-size:20px;" onclick="resetMatchPairs()">↺ Làm lại</button>
+            ` : ""}
+            ${renderStarsBarHTML()}
+          </div>
+        </div>
+        <div class="matching-container">
+          <div class="match-col">
+            <div class="match-col-title">KHO SẢN PHẨM (KÉO TỪ ĐÂY)</div>
+            ${leftHTML}
+          </div>
+          <div class="match-col">
+            <div class="match-col-title">Ô GHÉP NGHỀ THỦ CÔNG (THẢ VÀO ĐÂY)</div>
+            ${rightHTML}
+          </div>
+        </div>
+        ${fbHTML}
+      `;
+
+      initTouchDragForMatch();
+      renderGameFooterButtons(footerAction, isStarEarned);
+    }
+
+    function onProductDragStart(ev, prodId) {
+      if (state.gameStars[state.gameIndex]) return;
+      state.gameMatchProduct = prodId;
+      playSfx("pickup");
+      if (ev.dataTransfer) {
+        ev.dataTransfer.setData("text/plain", prodId);
+        ev.dataTransfer.effectAllowed = "move";
+      }
+    }
+
+    function onCraftDragOver(ev) {
+      ev.preventDefault();
+      if (ev.dataTransfer) ev.dataTransfer.dropEffect = "move";
+    }
+
+    function onCraftDragEnter(ev) {
+      ev.preventDefault();
+      const slot = ev.currentTarget;
+      if (slot) slot.classList.add("drag-over");
+    }
+
+    function onCraftDragLeave(ev) {
+      const slot = ev.currentTarget;
+      if (slot) slot.classList.remove("drag-over");
+    }
+
+    function onCraftDrop(ev, craftIdx) {
+      ev.preventDefault();
+      const slot = ev.currentTarget;
+      if (slot) slot.classList.remove("drag-over");
+      if (state.gameStars[state.gameIndex]) return;
+      const prodId = (ev.dataTransfer && ev.dataTransfer.getData("text/plain")) || state.gameMatchProduct;
+      if (prodId) {
+        assignProductToCraft(prodId, craftIdx);
+      }
+    }
+
+    function assignProductToCraft(prodId, craftIdx) {
+      for (const p of MATCH_PRODUCTS) {
+        if (state.gameMatches[p.id] === craftIdx) {
+          delete state.gameMatches[p.id];
+        }
+      }
+      state.gameMatches[prodId] = craftIdx;
+      playSfx("drop");
+      const nextUnmatched = MATCH_PRODUCTS.find(p => state.gameMatches[p.id] === undefined);
+      state.gameMatchProduct = nextUnmatched ? nextUnmatched.id : null;
+      state.gameFeedback = null;
+      renderApp(false);
+    }
+
+    function unpairProduct(ev, prodId) {
+      ev.stopPropagation();
+      if (state.gameStars[state.gameIndex]) return;
+      delete state.gameMatches[prodId];
+      state.gameMatchProduct = prodId;
+      state.gameFeedback = null;
+      renderApp(false);
+    }
+
+    function resetMatchPairs() {
+      if (state.gameStars[state.gameIndex]) return;
+      state.gameMatches = {};
+      state.gameMatchProduct = null;
+      state.gameFeedback = null;
+      renderApp(false);
+    }
+
+    /* Hỗ trợ kéo thả mượt trên màn hình cảm ứng / bảng tương tác */
+    function initTouchDragForMatch() {
+      const cards = document.querySelectorAll(".drag-product-card");
+      cards.forEach(card => {
+        card.addEventListener("touchstart", function(e) {
+          if (state.gameStars[state.gameIndex]) return;
+          const prodId = card.getAttribute("data-prod-id");
+          state.gameMatchProduct = prodId;
+          const touch = e.touches[0];
+          const ghost = card.cloneNode(true);
+          ghost.style.position = "fixed";
+          ghost.style.width = "320px";
+          ghost.style.zIndex = "9999";
+          ghost.style.opacity = "0.9";
+          ghost.style.pointerEvents = "none";
+          ghost.style.left = (touch.clientX - 160) + "px";
+          ghost.style.top = (touch.clientY - 45) + "px";
+          document.body.appendChild(ghost);
+
+          function onTouchMove(evMove) {
+            const t = evMove.touches[0];
+            ghost.style.left = (t.clientX - 160) + "px";
+            ghost.style.top = (t.clientY - 45) + "px";
+          }
+          function onTouchEnd(evEnd) {
+            document.removeEventListener("touchmove", onTouchMove);
+            document.removeEventListener("touchend", onTouchEnd);
+            if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+            const t = evEnd.changedTouches[0];
+            const el = document.elementFromPoint(t.clientX, t.clientY);
+            const dropSlot = el && el.closest ? el.closest("[data-drop-craft]") : null;
+            if (dropSlot) {
+              const craftIdx = Number(dropSlot.getAttribute("data-drop-craft"));
+              assignProductToCraft(prodId, craftIdx);
+            }
+          }
+          document.addEventListener("touchmove", onTouchMove, { passive: true });
+          document.addEventListener("touchend", onTouchEnd, { passive: true });
+        }, { passive: true });
+      });
+    }
+
+    function pickMatchProduct(prodId) {
+      if (state.gameStars[state.gameIndex]) return;
+      state.gameMatchProduct = prodId;
+      state.gameFeedback = null;
+      renderApp(false);
+    }
+
+    function pickMatchCraft(craftIdx) {
+      if (state.gameStars[state.gameIndex]) return;
+      const targetProd = state.gameMatchProduct || MATCH_PRODUCTS.find(p => state.gameMatches[p.id] === undefined)?.id || MATCH_PRODUCTS[0].id;
+      assignProductToCraft(targetProd, craftIdx);
+    }
+
+    function toggleGameOption(idx) {
+      if (state.gameStars[state.gameIndex]) return;
+      const ch = GAME_CHALLENGES[state.gameIndex];
+      state.gameFeedback = null;
+      if (ch.type === "single") {
+        state.gameSinglePick = idx;
+      } else if (ch.type === "multi2") {
+        if (state.gameMultiPicks[idx]) {
+          delete state.gameMultiPicks[idx];
+        } else {
+          state.gameMultiPicks[idx] = true;
+        }
+      }
+      renderApp(false);
+    }
+
+    function renderGameFooterButtons(footerAction, isStarEarned) {
+      if (!isStarEarned) {
+        footerAction.innerHTML = `
+          <button type="button" class="ui-btn ui-btn-yellow" onclick="verifyGameChallenge()">
+            <img src="ui/11_check.png" alt="" class="btn-icon" />
+            <span>Kiểm tra</span>
+          </button>
+        `;
+      } else {
+        footerAction.innerHTML = `
+          <button type="button" class="ui-btn ui-btn-yellow" onclick="nextGameChallenge()">
+            <span>${state.gameIndex < 4 ? "Tiếp theo" : "Đến Góc hỏi đáp"}</span>
+            <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+          </button>
+        `;
+      }
+    }
+
+    function verifyGameChallenge() {
+      const ch = GAME_CHALLENGES[state.gameIndex];
+
+      if (ch.type === "single") {
+        if (state.gameSinglePick === null) {
+          state.gameFeedback = "wrong";
+          renderApp(false);
+          playSfx("wrong"); playAudioCode("20_chua_chon", null, false);
+          return;
+        }
+        if (state.gameSinglePick === ch.correctIndex) {
+          awardCurrentGameStar();
+        } else {
+          state.gameFeedback = "wrong";
+          renderApp(false);
+          playSfx("wrong"); playAudioCode("19_thu_lai", null, false);
+        }
+      } else if (ch.type === "multi2") {
+        const picked = Object.keys(state.gameMultiPicks).map(Number);
+        if (picked.length !== 2) {
+          state.gameFeedback = "need_two";
+          renderApp(false);
+          playSfx("wrong"); playAudioCode("40_game_du_hai", null, false);
+          return;
+        }
+        if (picked.includes(0) && picked.includes(1)) {
+          awardCurrentGameStar();
+        } else {
+          state.gameFeedback = "wrong";
+          renderApp(false);
+          playSfx("wrong"); playAudioCode("19_thu_lai", null, false);
+        }
+      } else if (ch.type === "match") {
+        if (Object.keys(state.gameMatches).length < 3) {
+          state.gameFeedback = "incomplete_match";
+          renderApp(false);
+          playSfx("wrong"); playAudioCode("41_game_chua_ghep", null, false);
+          return;
+        }
+        const allCorrect = MATCH_PRODUCTS.every(p => state.gameMatches[p.id] === p.correctCraftIdx);
+        if (allCorrect) {
+          awardCurrentGameStar();
+        } else {
+          state.gameFeedback = "wrong";
+          renderApp(false);
+          playSfx("wrong"); playAudioCode("19_thu_lai", null, false);
+        }
+      }
+    }
+
+    function awardCurrentGameStar() {
+      state.gameStars[state.gameIndex] = true;
+      state.gameFeedback = "ok";
+      playSfx(state.gameIndex === 4 ? "fanfare" : "star");
+      renderApp(false);
+      if (state.gameIndex === 4) {
+        playAudioCode("42_huy_hieu", null, false);
+      } else {
+        playAudioCode("39_game_dung", null, false);
+      }
+    }
+
+    function nextGameChallenge() {
+      if (state.gameIndex < 4) {
+        state.gameIndex += 1;
+        state.gameSinglePick = null;
+        state.gameFeedback = null;
+        renderApp(true);
+      } else {
+        goToScreen("qa", true);
+      }
+    }
+
+    /*************************************************************************
+     * MÀN 8: GÓC HỎI ĐÁP — CHATBOT THÔNG MINH (2 PHƯƠNG ÁN: LỌC TỪ KHÓA + GEMINI API)
+     *************************************************************************/
+    /*************************************************************************
+     * PHƯƠNG ÁN 1: BỘ NÃO KỊCH BẢN — PHÂN TÍCH & LỌC TỪ KHÓA CÂU HỎI HỌC SINH
+     * Cách hoạt động:
+     *   1) Chuẩn hóa câu hỏi (bỏ dấu, viết thường, sửa từ viết tắt).
+     *   2) Nhận diện CHỦ ĐỀ (nghề nào) + KHÍA CẠNH (hỏi về nguyên liệu, cách làm,
+     *      sản phẩm, ích lợi, ở đâu, giữ gìn...).
+     *   3) Ghép Chủ đề × Khía cạnh để chọn câu trả lời kịch bản chính xác nhất.
+     *   4) Luôn kèm 3 câu "Hỏi tiếp" gợi ý để học sinh khám phá sâu hơn.
+     *************************************************************************/
+
+    /* Từ viết tắt / viết sai thường gặp của học sinh */
+    const CHAT_ALIASES = [
+      [/\bko\b|\bk\b|\bkhong\b/g, "khong"],
+      [/\bj\b|\bgi\b/g, "gi"],
+      [/\bsao\b|\bvi sao\b|\btai sao\b|\bsao lai\b/g, " visao "],
+      [/\blam the nao\b|\bnhu the nao\b|\bra sao\b|\bcach nao\b|\bthe nao\b|\bcach lam\b|\blam sao\b/g, " cachlam "],
+      [/\bo dau\b|\bcho nao\b|\bnoi nao\b|\bvung nao\b|\blang nao\b/g, " odau "],
+      [/\bdc\b|\bdk\b|\bduoc\b/g, "duoc"],
+      [/\bng\b/g, "nguoi"],
+      [/\bthu cong\b/g, "thucong"],
+      [/\bcong nghiep\b/g, "congnghiep"]
+    ];
+
+    /* CHỦ ĐỀ: mỗi nghề và các từ khóa nhận diện */
+    const CHAT_TOPICS = {
+      gom:       { name: "Nghề làm gốm", kw: ["gom", "dat set", "ban xoay", "binh gom", "lo nung", "nung", "am chen", "bat dia", "chum", "vai gom", "bat trang", "bau truc", "men", "tho gom"] },
+      maytre:    { name: "Nghề mây tre đan", kw: ["may tre", "cay may", "tre", "nua", "gio", "ro ra", "cai ro", "cai ra", "ro tre", "gio tre", "nong", "nia", "long ban", "nan", "che nan", "an dan"] },
+      thocam:    { name: "Nghề dệt vải thổ cẩm", kw: ["tho cam", "det", "khung cui", "soi", "chi mau", "hoa van", "det vai", "tam vai", "vai tho cam", "khan", "tui", "dan toc", "bong vai", "nhuom"] },
+      dongho:    { name: "Nghề làm tranh Đông Hồ", kw: ["dong ho", "tranh", "giay do", "diep", "ban khac", "khac go", "dam cuoi chuot", "lon dan", "ga dan", "tranh dan gian", "in tranh"] },
+      nonla:     { name: "Nghề làm nón lá", kw: ["non la", "non", "cham non", "la non", "la co", "vanh non", "quai non"] },
+      banhtrang: { name: "Nghề làm bánh tráng", kw: ["banh trang", "banh da", "bot gao", "trang banh", "phoi banh", "banh"] },
+      dogo:      { name: "Nghề làm đồ gỗ", kw: ["go", "do go", "tho moc", "nghe moc", "ban ghe", "tu go", "cham khac", "dao go", "duc", "bao go", "cua go"] }
+    };
+
+    /* KHÍA CẠNH: học sinh đang hỏi điều gì */
+    const CHAT_ASPECTS = {
+      nguyenlieu: ["nguyen lieu", "lam bang gi", "lam tu gi", "bang gi", "tu gi", "chat lieu", "can gi", "dung gi", "vat lieu", "lay o dau"],
+      cachlam:    ["cachlam", "quy trinh", "cac buoc", "lam ra", "tao ra", "che tao", "lam nhu"],
+      sanpham:    ["san pham", "lam ra cai gi", "tao ra gi", "do vat", "nhung gi", "cai gi", "gom nhung"],
+      ichloi:     ["ich loi", "loi ich", "tac dung", "dung de", "de lam gi", "giup gi", "giup ich", "co ich", "vai tro", "quan trong"],
+      odau:       ["odau", "lang nghe", "noi tieng", "tinh nao", "vung mien"],
+      giugin:     ["giu gin", "bao quan", "cat giu", "ve sinh", "rua", "khong bi vo", "bi moc", "lau ben", "su dung"],
+      visao:      ["visao", "ly do", "nguyen nhan"],
+      dungcu:     ["dung cu", "cong cu", "may moc", "thiet bi"]
+    };
+
+    /* KỊCH BẢN TRẢ LỜI theo CHỦ ĐỀ × KHÍA CẠNH (ngôn ngữ phù hợp học sinh lớp 3) */
+    const CHAT_SCRIPTS = {
+      gom: {
+        tongquan: "Nghề làm gốm là nghề dùng đất sét nặn thành bình, bát, đĩa, ấm chén rồi đem nung trong lò cho thật cứng. Đây là một nghề thủ công rất lâu đời của nước ta đấy em!",
+        nguyenlieu: "Nguyên liệu chính của nghề gốm là đất sét dẻo và nước. Ngoài ra người thợ còn dùng men để tráng bên ngoài cho sản phẩm bóng đẹp, và củi hoặc than để đốt lò nung.",
+        cachlam: "Làm gốm gồm 4 bước chính: (1) Nhào đất sét thật nhuyễn; (2) Đặt lên bàn xoay và dùng đôi tay khéo léo nặn tạo hình; (3) Phơi khô, vẽ hoa văn, tráng men; (4) Đưa vào lò nung ở nhiệt độ thật cao.",
+        sanpham: "Nghề gốm làm ra rất nhiều đồ dùng quen thuộc: bình hoa, bát, đĩa, ấm chén, chum, vại, chậu cây và các con giống trang trí nữa đó em.",
+        ichloi: "Đồ gốm giúp gia đình em đựng thức ăn, pha trà, cắm hoa, trang trí nhà cửa. Nghề gốm còn mang lại thu nhập cho người thợ và giữ gìn nét đẹp văn hóa của làng nghề.",
+        odau: "Ở nước ta có nhiều làng gốm nổi tiếng như: làng gốm Bát Tràng (Hà Nội), gốm Chu Đậu (Hải Dương), gốm Bàu Trúc (Ninh Thuận) và gốm Biên Hòa (Đồng Nai).",
+        giugin: "Đồ gốm dễ vỡ nên em cần cầm bằng hai tay, đặt nhẹ nhàng, không để gần mép bàn và không va đập mạnh. Rửa xong nên lau khô rồi cất lên kệ chắc chắn nhé!",
+        visao: "Phải nung đồ gốm vì đất sét mới nặn còn mềm và gặp nước sẽ bị tan ra. Khi nung ở nhiệt độ rất cao, đất sét biến đổi và trở nên cứng chắc, đựng được nước và dùng được rất lâu.",
+        dungcu: "Người thợ gốm dùng những công cụ đơn giản như bàn xoay, dao gọt, que tạo hoa văn, miếng bọt biển, cọ vẽ và lò nung."
+      },
+      maytre: {
+        tongquan: "Nghề mây tre đan là nghề dùng cây mây, cây tre chẻ thành nan mỏng rồi đan bằng tay thành giỏ, rổ, rá, nong, nia. Sản phẩm vừa bền vừa đẹp lại thân thiện với môi trường!",
+        nguyenlieu: "Nguyên liệu của nghề mây tre đan là cây mây, cây tre, cây nứa, cây giang có sẵn trong tự nhiên ở làng quê Việt Nam.",
+        cachlam: "Các bước đan mây tre: (1) Chặt tre, mây về; (2) Chẻ thành từng nan mỏng, vót thật nhẵn; (3) Phơi khô cho nan dẻo và bền; (4) Dùng đôi tay khéo léo đan cài các nan vào nhau tạo thành sản phẩm.",
+        sanpham: "Sản phẩm mây tre đan gồm giỏ, rổ, rá, nong, nia, mẹt, lồng bàn, khay, đèn trang trí, bàn ghế mây và nhiều đồ lưu niệm xinh xắn.",
+        ichloi: "Đồ mây tre đan giúp đựng rau củ, hoa quả, đồ dùng gọn gàng; dùng trang trí nhà cửa; rất nhẹ, bền và không gây ô nhiễm như đồ nhựa. Nhiều sản phẩm còn được bán ra nước ngoài nữa!",
+        odau: "Một số làng nghề mây tre đan nổi tiếng là làng Phú Vinh (Hà Nội), làng Bao La (Huế) và làng Phú An (Bình Dương).",
+        giugin: "Đồ mây tre sợ ẩm. Dùng xong em nên rửa sạch, phơi nơi khô ráo, thoáng gió để không bị mốc và mối mọt nhé!",
+        visao: "Phải phơi khô nan tre trước khi đan để nan dẻo dai, không bị cong vênh, không mốc và sản phẩm dùng được lâu hơn.",
+        dungcu: "Người thợ mây tre đan chỉ cần những dụng cụ đơn giản như dao chẻ nan, dao vót, dùi và đôi bàn tay thật khéo léo."
+      },
+      thocam: {
+        tongquan: "Nghề dệt vải thổ cẩm là nghề dùng sợi chỉ nhiều màu dệt trên khung cửi thành những tấm vải có hoa văn rực rỡ. Đây là nghề truyền thống của đồng bào các dân tộc vùng núi.",
+        nguyenlieu: "Nguyên liệu dệt thổ cẩm là sợi bông, sợi lanh được nhuộm màu bằng lá cây, vỏ cây, củ, rễ cây trong tự nhiên.",
+        cachlam: "Dệt thổ cẩm gồm các bước: (1) Kéo sợi từ bông, lanh; (2) Nhuộm sợi thành nhiều màu; (3) Mắc sợi lên khung cửi; (4) Người thợ khéo léo luồn từng sợi màu để dệt nên hoa văn.",
+        sanpham: "Nghề dệt thổ cẩm làm ra tấm vải thổ cẩm, khăn quàng, túi xách, váy áo, chăn, tấm trải bàn và nhiều đồ lưu niệm.",
+        ichloi: "Vải thổ cẩm dùng để may quần áo, khăn, túi, chăn phục vụ cuộc sống. Mỗi hoa văn còn thể hiện bản sắc văn hóa riêng của từng dân tộc, rất đáng tự hào!",
+        odau: "Nghề dệt thổ cẩm có ở nhiều vùng núi như: Mai Châu (Hòa Bình), Sa Pa (Lào Cai), Hà Giang và các buôn làng ở Tây Nguyên.",
+        giugin: "Đồ thổ cẩm nên giặt nhẹ bằng tay với nước mát, phơi trong bóng râm để giữ màu sắc tươi đẹp lâu.",
+        visao: "Hoa văn trên vải thổ cẩm thường hình hoa lá, chim muông, núi rừng vì người thợ muốn kể lại cuộc sống và thiên nhiên quanh mình. Mỗi dân tộc có hoa văn riêng như một dấu hiệu nhận biết.",
+        dungcu: "Dụng cụ chính của nghề dệt thổ cẩm là khung cửi (khung dệt) bằng gỗ, con thoi và các sợi chỉ màu."
+      },
+      dongho: {
+        tongquan: "Nghề làm tranh Đông Hồ là nghề in tranh dân gian bằng bản khắc gỗ ở làng Đông Hồ (Bắc Ninh). Tranh có màu sắc tươi vui và nhiều ý nghĩa tốt đẹp.",
+        nguyenlieu: "Tranh Đông Hồ được in trên giấy dó quét lớp điệp óng ánh (làm từ vỏ con điệp giã nhỏ). Màu vẽ lấy từ thiên nhiên: màu đen từ than lá tre, màu vàng từ hoa hòe, màu đỏ từ sỏi son, màu xanh từ lá chàm.",
+        cachlam: "Làm tranh Đông Hồ: (1) Khắc hình lên các bản gỗ; (2) Quét màu lên bản khắc; (3) Ấn tờ giấy dó lên bản khắc để in; (4) In lần lượt từng màu, mỗi màu một bản, màu đen in sau cùng.",
+        sanpham: "Một số bức tranh Đông Hồ nổi tiếng là: Đám cưới chuột, Lợn đàn, Gà đàn, Chăn trâu thổi sáo, Hứng dừa, Vinh hoa – Phú quý.",
+        ichloi: "Tranh Đông Hồ dùng để treo trang trí nhà cửa, nhất là dịp Tết, mang lời chúc tốt lành. Tranh giúp chúng ta hiểu và gìn giữ nét đẹp văn hóa dân gian Việt Nam.",
+        odau: "Tranh Đông Hồ được làm ở làng Đông Hồ, xã Song Hồ, huyện Thuận Thành, tỉnh Bắc Ninh.",
+        giugin: "Tranh làm bằng giấy nên em cần để nơi khô ráo, tránh nước và ánh nắng gắt, có thể lồng khung kính để giữ tranh được lâu.",
+        visao: "Gọi là tranh Đông Hồ vì tranh được làm ở làng Đông Hồ (Bắc Ninh). Tranh dùng màu tự nhiên để có màu sắc mộc mạc, bền màu và an toàn.",
+        dungcu: "Dụng cụ làm tranh Đông Hồ gồm các bản khắc gỗ, chổi lá thông để quét màu và giấy dó phủ điệp."
+      },
+      nonla: {
+        tongquan: "Nghề làm nón lá là nghề khâu lá nón lên khung tre thành chiếc nón lá — biểu tượng duyên dáng của người phụ nữ Việt Nam.",
+        nguyenlieu: "Nguyên liệu làm nón lá gồm lá cọ (lá nón) phơi trắng, nan tre chuốt tròn làm vành và sợi cước hoặc chỉ để khâu.",
+        cachlam: "Làm nón lá: (1) Phơi và là phẳng lá nón; (2) Uốn nan tre thành các vòng tròn to nhỏ dựng thành khung; (3) Xếp lá đều lên khung; (4) Khâu từng mũi kim thật đều tay.",
+        sanpham: "Sản phẩm của nghề là nón lá, nón bài thơ (Huế) và nhiều nón nhỏ làm quà lưu niệm.",
+        ichloi: "Nón lá giúp che nắng, che mưa khi đi đường, làm đồng; còn dùng để biểu diễn múa và làm quà tặng du khách.",
+        odau: "Làng nón nổi tiếng là làng Chuông (Hà Nội) và các làng nón ở Huế với nón bài thơ.",
+        giugin: "Nón lá nên treo nơi khô ráo, tránh để ướt lâu và không đè vật nặng lên nón.",
+        visao: "Gọi là nón bài thơ vì ở Huế người thợ kẹp giữa hai lớp lá những hình vẽ và câu thơ, khi soi lên ánh nắng sẽ nhìn thấy.",
+        dungcu: "Dụng cụ làm nón gồm khuôn nón, kim khâu, chỉ cước và bàn là lá."
+      },
+      banhtrang: {
+        tongquan: "Nghề làm bánh tráng là nghề tráng bột gạo thành những chiếc bánh mỏng tròn rồi phơi khô, dùng để cuốn thức ăn hoặc nướng giòn.",
+        nguyenlieu: "Nguyên liệu làm bánh tráng là gạo xay thành bột pha với nước, có thể thêm mè (vừng), dừa; và phên tre để phơi bánh.",
+        cachlam: "Làm bánh tráng: (1) Ngâm gạo, xay thành bột nước; (2) Tráng một lớp bột mỏng lên mặt vải căng trên nồi nước sôi; (3) Gỡ bánh chín đặt lên phên tre; (4) Đem phơi nắng cho khô.",
+        sanpham: "Sản phẩm gồm bánh tráng cuốn, bánh tráng mè nướng, bánh tráng phơi sương (Tây Ninh), bánh đa (miền Bắc).",
+        ichloi: "Bánh tráng dùng để cuốn gỏi cuốn, chả giò, nướng ăn giòn thơm; mang lại thu nhập cho nhiều gia đình ở làng quê.",
+        odau: "Làng bánh tráng nổi tiếng có Trảng Bàng (Tây Ninh), Phú Hòa Đông (Củ Chi, TP. Hồ Chí Minh) và Túy Loan (Đà Nẵng).",
+        giugin: "Bánh tráng cần cất trong túi kín, nơi khô ráo để không bị ẩm mốc.",
+        visao: "Phải phơi bánh tráng để bánh khô cứng, cất giữ được lâu mà không bị hỏng.",
+        dungcu: "Dụng cụ gồm cối xay bột, nồi hơi căng vải, que gỡ bánh và phên tre."
+      },
+      dogo: {
+        tongquan: "Nghề làm đồ gỗ (nghề mộc) là nghề dùng gỗ tự nhiên để làm bàn, ghế, tủ, giường và chạm khắc tượng gỗ.",
+        nguyenlieu: "Nguyên liệu chính là gỗ tự nhiên như gỗ lim, gỗ mít, gỗ xoan, gỗ hương; cùng keo dán, đinh, sơn hoặc dầu bóng.",
+        cachlam: "Làm đồ gỗ: (1) Cưa gỗ thành tấm; (2) Bào cho phẳng nhẵn; (3) Đục mộng, lắp ghép thành bàn ghế; (4) Chạm khắc hoa văn, đánh bóng, sơn phủ.",
+        sanpham: "Nghề mộc làm ra bàn ghế, tủ, giường, cửa, kệ sách và các tượng, tranh gỗ chạm khắc tinh xảo.",
+        ichloi: "Đồ gỗ phục vụ học tập, sinh hoạt hằng ngày như bàn học, ghế ngồi, tủ quần áo; đồ gỗ chạm khắc còn dùng để trang trí rất đẹp.",
+        odau: "Làng nghề gỗ nổi tiếng gồm làng mộc Kim Bồng (Hội An), làng Đồng Kỵ (Bắc Ninh), làng Chàng Sơn (Hà Nội).",
+        giugin: "Đồ gỗ nên để nơi khô ráo, lau bằng khăn mềm, tránh để nước đọng và không dùng vật nhọn cào lên mặt gỗ.",
+        visao: "Phải bào và đánh bóng gỗ để bề mặt nhẵn mịn, không có dằm làm đau tay và đồ gỗ đẹp hơn, bền hơn.",
+        dungcu: "Người thợ mộc dùng cưa, bào, đục, búa, thước và giấy nhám."
+      }
+    };
+
+    /* Câu trả lời chung khi chỉ nhận ra KHÍA CẠNH mà không rõ nghề */
+    const CHAT_GENERAL_ASPECT = {
+      nguyenlieu: "Mỗi nghề thủ công dùng nguyên liệu khác nhau: nghề gốm dùng đất sét, nghề mây tre đan dùng mây và tre, nghề dệt thổ cẩm dùng sợi chỉ màu, nghề tranh Đông Hồ dùng giấy dó và màu tự nhiên. Em muốn hỏi kỹ về nghề nào?",
+      cachlam: "Điểm chung của các nghề thủ công là người thợ làm chủ yếu bằng đôi bàn tay khéo léo với công cụ đơn giản. Em hãy hỏi cụ thể, ví dụ: 'Làm gốm như thế nào?' để cô kể chi tiết nhé!",
+      sanpham: "Sản phẩm thủ công rất đa dạng: bình bát gốm, giỏ rổ mây tre, vải túi thổ cẩm, tranh Đông Hồ, nón lá, bánh tráng, bàn ghế gỗ...",
+      ichloi: "Sản phẩm thủ công có 3 ích lợi lớn: (1) Phục vụ sinh hoạt và trang trí nhà cửa; (2) Mang lại việc làm, thu nhập cho người lao động; (3) Giữ gìn nét đẹp văn hóa truyền thống Việt Nam.",
+      odau: "Nước ta có rất nhiều làng nghề: gốm Bát Tràng (Hà Nội), tranh Đông Hồ (Bắc Ninh), mây tre Phú Vinh (Hà Nội), thổ cẩm Mai Châu (Hòa Bình), nón lá làng Chuông, bánh tráng Trảng Bàng (Tây Ninh)...",
+      giugin: "Để giữ gìn đồ thủ công, em nhớ: cầm đồ gốm nhẹ tay; phơi khô đồ mây tre sau khi dùng; giặt nhẹ đồ thổ cẩm; để tranh nơi khô ráo. Như vậy là em đang trân trọng công sức người thợ đấy!",
+      visao: "Đó là một câu hỏi 'Vì sao' rất hay! Em hãy nói rõ hơn em muốn hỏi về nghề nào nhé, ví dụ: 'Vì sao phải nung đồ gốm?'",
+      dungcu: "Nghề thủ công chỉ dùng công cụ đơn giản như bàn xoay (gốm), dao chẻ nan (mây tre), khung cửi (thổ cẩm), bản khắc gỗ (tranh Đông Hồ), cưa bào đục (đồ gỗ)."
+    };
+
+    /* Các câu hỏi CHUNG (không thuộc một nghề cụ thể) */
+    const CHAT_GENERAL_INTENTS = [
+      { tag: "Lời chào", kw: ["xin chao", "chao co", "hello", "hi co", "alo", "chao ban", "em chao"],
+        answer: "Cô chào em! Cô là Trợ lý Học tập của cô Hoàng Thị Tâm, lớp 3/6 Trường Tiểu học Huỳnh Thúc Kháng. Hôm nay em muốn tìm hiểu nghề thủ công nào nè?" },
+      { tag: "Giới thiệu", kw: ["ban la ai", "co la ai", "ten gi", "ai vay", "robot"],
+        answer: "Cô là Trợ lý Học tập do cô Hoàng Thị Tâm chuẩn bị để giúp các em lớp 3/6 tìm hiểu Bài 10. Em cứ hỏi cô bất cứ điều gì về các nghề thủ công nhé!" },
+      { tag: "Cảm ơn", kw: ["cam on", "thank", "hay qua", "tuyet", "gioi qua", "thich qua"],
+        answer: "Cô cảm ơn em! Em đặt câu hỏi rất chăm chỉ. Cố gắng hoàn thành bài để nhận huy hiệu Nghệ nhân nhí tài ba nhé!" },
+      { tag: "Tạm biệt", kw: ["tam biet", "bye", "chao tam biet", "het roi"],
+        answer: "Tạm biệt em! Nhớ giữ gìn đồ dùng thủ công ở nhà thật cẩn thận nhé. Hẹn gặp lại em!" },
+      { tag: "Khái niệm thủ công", kw: ["thucong la gi", "the nao la thucong", "san xuat thucong", "hoat dong san xuat thucong", "visao goi la thucong", "thucong nghia la"],
+        answer: "Sản xuất thủ công là làm ra sản phẩm chủ yếu bằng đôi bàn tay khéo léo của người thợ, với sự hỗ trợ của những công cụ đơn giản. Ví dụ: nặn gốm, đan rổ, dệt vải, in tranh Đông Hồ." },
+      { tag: "So sánh thủ công – công nghiệp", kw: ["congnghiep", "khac nhau", "khac gi", "nha may", "may moc", "day chuyen", "so sanh", "giong nhau"],
+        answer: "Sản xuất thủ công làm bằng tay với công cụ đơn giản, số lượng ít, mỗi sản phẩm có nét riêng. Sản xuất công nghiệp dùng máy móc hiện đại trong nhà máy, làm ra rất nhiều sản phẩm giống nhau trong thời gian ngắn. Phần công nghiệp các em sẽ học ở tiết sau nhé!" },
+      { tag: "Thái độ trân trọng", kw: ["tran trong", "biet on", "kinh trong", "thai do", "em can lam gi", "em phai lam gi"],
+        answer: "Để trân trọng người thợ thủ công, em cần: giữ gìn đồ dùng cẩn thận, sử dụng tiết kiệm, không làm hỏng hay vứt bỏ bừa bãi, và tự hào giới thiệu sản phẩm làng nghề Việt Nam với bạn bè." },
+      { tag: "Bảo vệ môi trường", kw: ["moi truong", "nhua", "nilon", "rac thai", "than thien"],
+        answer: "Nhiều sản phẩm thủ công làm từ nguyên liệu tự nhiên như tre, mây, đất sét, sợi bông nên rất thân thiện với môi trường. Dùng giỏ tre thay túi ni-lông là em đã góp phần bảo vệ Trái Đất rồi đó!" },
+      { tag: "Nghề ở địa phương em", kw: ["thanh pho", "ho chi minh", "sai gon", "binh tan", "binh hung hoa", "gan nha", "dia phuong", "noi em o"],
+        answer: "Ở TP. Hồ Chí Minh có làng bánh tráng Phú Hòa Đông (Củ Chi), làng đan đát Thạnh An (Cần Giờ), làng sơn mài Tương Bình Hiệp (Bình Dương, gần thành phố). Em thử hỏi ông bà, bố mẹ xem quanh nhà em có nghề thủ công nào không nhé!" },
+      { tag: "Ước mơ nghề nghiệp", kw: ["lon len", "uoc mo", "muon lam", "tro thanh", "lam nghe"],
+        answer: "Thật tuyệt vời nếu em muốn trở thành nghệ nhân! Muốn làm tốt nghề thủ công, em cần kiên nhẫn, khéo tay và yêu quý văn hóa dân tộc. Hãy bắt đầu bằng việc tập nặn đất, gấp giấy, đan giấy ở nhà nhé!" }
+    ];
+
+    /* Câu hỏi "Hỏi tiếp" theo từng nghề */
+    const CHAT_FOLLOWUPS = {
+      gom: ["Làm gốm như thế nào?", "Vì sao phải nung đồ gốm?", "Làng gốm nổi tiếng ở đâu?", "Làm sao để đồ gốm không bị vỡ?"],
+      maytre: ["Mây tre đan làm bằng gì?", "Đan rổ tre như thế nào?", "Đồ mây tre có ích lợi gì?", "Bảo quản giỏ tre ra sao?"],
+      thocam: ["Vải thổ cẩm làm từ gì?", "Vì sao vải thổ cẩm có nhiều hoa văn?", "Thổ cẩm dùng để làm gì?", "Nghề dệt thổ cẩm ở đâu?"],
+      dongho: ["Tranh Đông Hồ làm từ giấy gì?", "Tranh Đông Hồ in như thế nào?", "Kể tên tranh Đông Hồ nổi tiếng", "Làng tranh Đông Hồ ở đâu?"],
+      nonla: ["Nón lá làm bằng gì?", "Vì sao gọi là nón bài thơ?", "Nón lá có ích lợi gì?"],
+      banhtrang: ["Bánh tráng làm từ gì?", "Vì sao phải phơi bánh tráng?", "Làng bánh tráng ở đâu?"],
+      dogo: ["Thợ mộc dùng dụng cụ gì?", "Làm bàn ghế gỗ như thế nào?", "Giữ gìn đồ gỗ ra sao?"],
+      chung: ["Sản xuất thủ công là gì?", "Thủ công khác công nghiệp thế nào?", "Sản phẩm thủ công có ích lợi gì?", "Em cần làm gì để trân trọng người thợ?"]
+    };
+
+    function normalizeViText(str) {
+      let s = (str || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      s = " " + s + " ";
+      for (const [re, rep] of CHAT_ALIASES) s = s.replace(re, rep);
+      return s.replace(/\s+/g, " ").trim();
+    }
+
+    function hasPhrase(norm, kw) {
+      return (" " + norm + " ").includes(" " + kw + " ");
+    }
+
+    function pickRandom(arr, n) {
+      const copy = arr.slice();
+      const out = [];
+      while (copy.length && out.length < n) out.push(copy.splice(Math.floor(Math.random() * copy.length), 1)[0]);
+      return out;
+    }
+
+    function analyzeStudentQuestionByKeywords(questionText) {
+      const norm = normalizeViText(questionText);
+      if (!norm) {
+        return { tag: "Gợi ý", answer: "Em hãy gõ câu hỏi vào ô bên dưới nhé! Ví dụ: 'Vì sao phải nung đồ gốm?'", followups: pickRandom(CHAT_FOLLOWUPS.chung, 3) };
+      }
+
+      /* 1) Tìm CHỦ ĐỀ (nghề) — từ khóa dài được ưu tiên điểm cao hơn */
+      let topicId = null, topicScore = 0;
+      for (const [id, t] of Object.entries(CHAT_TOPICS)) {
+        let sc = 0;
+        for (const kw of t.kw) if (hasPhrase(norm, kw)) sc += kw.split(" ").length * 2;
+        if (sc > topicScore) { topicScore = sc; topicId = id; }
+      }
+
+      /* 2) Tìm KHÍA CẠNH câu hỏi */
+      let aspectId = null, aspectScore = 0;
+      for (const [id, kws] of Object.entries(CHAT_ASPECTS)) {
+        let sc = 0;
+        for (const kw of kws) if (hasPhrase(norm, kw)) sc += kw.split(" ").length * 2;
+        if (sc > aspectScore) { aspectScore = sc; aspectId = id; }
+      }
+      /* "visao" chỉ là từ để hỏi — nếu có khía cạnh khác rõ hơn thì ưu tiên khía cạnh đó */
+      if (aspectId === "visao") {
+        for (const id of ["ichloi", "giugin", "nguyenlieu"]) {
+          if (CHAT_ASPECTS[id].some(kw => hasPhrase(norm, kw))) { aspectId = id; break; }
+        }
+      }
+
+      /* 3) Câu hỏi chung (chào hỏi, khái niệm, so sánh...) */
+      let generalHit = null, generalScore = 0;
+      for (const g of CHAT_GENERAL_INTENTS) {
+        let sc = 0;
+        for (const kw of g.kw) if (hasPhrase(norm, kw)) sc += kw.split(" ").length * 2;
+        if (sc > generalScore) { generalScore = sc; generalHit = g; }
+      }
+      if (generalHit && generalScore >= topicScore + 2) {
+        return { tag: "Từ khóa: " + generalHit.tag, answer: generalHit.answer, followups: pickRandom(CHAT_FOLLOWUPS.chung, 3) };
+      }
+
+      /* 4) Ghép CHỦ ĐỀ × KHÍA CẠNH */
+      if (topicId) {
+        const script = CHAT_SCRIPTS[topicId];
+        const key = (aspectId && script[aspectId]) ? aspectId : "tongquan";
+        const aspectLabel = {
+          tongquan: "Giới thiệu", nguyenlieu: "Nguyên liệu", cachlam: "Cách làm", sanpham: "Sản phẩm",
+          ichloi: "Ích lợi", odau: "Làng nghề", giugin: "Giữ gìn", visao: "Vì sao", dungcu: "Dụng cụ"
+        }[key];
+        return {
+          tag: `Từ khóa: ${CHAT_TOPICS[topicId].name} • ${aspectLabel}`,
+          answer: script[key],
+          followups: pickRandom(CHAT_FOLLOWUPS[topicId], 3)
+        };
+      }
+
+      if (generalHit) {
+        return { tag: "Từ khóa: " + generalHit.tag, answer: generalHit.answer, followups: pickRandom(CHAT_FOLLOWUPS.chung, 3) };
+      }
+
+      if (aspectId && CHAT_GENERAL_ASPECT[aspectId]) {
+        return { tag: "Từ khóa: Câu hỏi chung", answer: CHAT_GENERAL_ASPECT[aspectId], followups: ["Làm gốm như thế nào?", "Mây tre đan làm bằng gì?", "Tranh Đông Hồ làm từ giấy gì?"] };
+      }
+
+      /* 5) Không nhận ra — hướng dẫn nhẹ nhàng */
+      return {
+        tag: "Cô chưa hiểu rõ câu hỏi",
+        answer: "Câu hỏi của em hay lắm, nhưng cô chưa hiểu rõ. Em thử hỏi về một nghề cụ thể nhé: nghề gốm, mây tre đan, dệt thổ cẩm, tranh Đông Hồ, nón lá, bánh tráng hay đồ gỗ. Hoặc chạm vào một câu gợi ý bên dưới!",
+        followups: pickRandom(CHAT_FOLLOWUPS.chung, 3)
+      };
+    }
+
+    function askFollowupQuestion(text) {
+      const inputEl = document.getElementById("student-chat-input");
+      if (inputEl) inputEl.value = text;
+      handleStudentChatSubmit({ preventDefault() {} });
+    }
+
+    async function askGeminiTeacherBot(questionText) {
+      const apiKey = (state.geminiApiKey || "").trim();
+      if (!apiKey) return null;
+
+      const systemPrompt = "Bạn là cô giáo Hoàng Thị Tâm, giáo viên chủ nhiệm lớp 3/6 Trường Tiểu học Huỳnh Thúc Kháng (UBND phường Bình Hưng Hoà), đang dạy môn Tự nhiên và Xã hội lớp 3 - Bài 10: Hoạt động sản xuất thủ công và công nghiệp (Tiết 1 - Tìm hiểu hoạt động sản xuất thủ công). Hãy trả lời câu hỏi của học sinh lớp 3 bằng giọng văn dịu dàng, gần gũi, dễ hiểu, ngắn gọn (khoảng 2 đến 4 câu), chính xác khoa học và giáo dục học sinh trân trọng người lao động.";
+      const payload = {
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: systemPrompt + "\n\nCâu hỏi của học sinh: " + questionText }]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 280
+        }
+      };
+
+      const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
+      for (const m of models) {
+        try {
+          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (reply) {
+              return {
+                tag: "Trí tuệ nhân tạo Gemini • Cô Hoàng Thị Tâm",
+                answer: reply.trim()
+              };
+            }
+          }
+        } catch (err) {
+          // Chuyển sang phương án dự phòng
+        }
+      }
+      return null;
+    }
+
+    function renderQAScreen(container, footerGuide, footerAction, autoPlayIntro) {
+      if (autoPlayIntro) {
+        playAudioCode(state.geminiApiKey ? "43_hoi_dap" : "44_hoi_dap_san", null, false);
+      }
+
+      footerGuide.textContent = "Chạm câu hỏi gợi ý bên trái hoặc nhập câu hỏi bất kỳ để trò chuyện với Chatbot, sau đó nhấn Hoàn thành";
+
+      const qButtons = QA_PRESETS.map((item, idx) => `
+        <button type="button" class="qa-q-btn ${idx === state.qaActiveIdx ? "active" : ""}" onclick="sendPresetQuestionToChat(${idx})">
+          ${item.q}
+        </button>
+      `).join("");
+
+      const messagesHTML = state.chatMessages.map(msg => `
+        <div class="chat-msg-row ${msg.role}">
+          <div class="chatbot-avatar-badge" style="background:${msg.role === 'bot' ? 'var(--yellow-main)' : '#DCE9FF'};">
+            ${msg.role === "bot" ? "Cô" : "Em"}
+          </div>
+          <div class="chat-bubble">
+            <div>${msg.text}</div>
+            ${msg.tag ? `<div class="chat-keyword-tag">✦ ${msg.tag}</div>` : ""}
+            ${msg.followups && msg.followups.length ? `
+              <div class="chat-followups">
+                <span class="chat-followups-label">Em hỏi tiếp nhé:</span>
+                ${msg.followups.map(q => `<button type="button" class="chat-followup-chip" onclick="askFollowupQuestion(&quot;${q}&quot;)">${q}</button>`).join("")}
+              </div>` : ""}
+          </div>
+        </div>
+      `).join("");
+
+      const modeLabel = state.geminiApiKey
+        ? "⚡ Chế độ: Gemini AI Trực tuyến"
+        : "📘 Kịch bản lọc từ khóa • Không cần mạng";
+
+      container.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <h2 class="screen-heading" style="margin:0; font-size:36px;">Góc hỏi đáp • Chatbot Cô Hoàng Thị Tâm</h2>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px; font-weight:bold; color:var(--blue-main); background:var(--blue-soft); padding:5px 14px; border-radius:999px; border:2px solid rgba(7,82,232,0.25);">
+              ${modeLabel}
+            </span>
+            <button type="button" class="nav-icon-btn icon-only" style="height:40px; width:42px; font-size:20px; opacity:0.55;" title="Tùy chọn nâng cao (Gemini API)" onclick="toggleGeminiApiModal(true)">⚙</button>
+          </div>
+        </div>
+
+        <div class="qa-corner-layout">
+          <div class="qa-questions-col">
+            <div style="font-size:22px; font-weight:bold; color:var(--blue-dark); text-align:center; padding-bottom:2px;">
+              💡 CÂU HỎI GỢI Ý NHANH (CHẠM ĐỂ HỎI)
+            </div>
+            ${qButtons}
+          </div>
+
+          <div class="chatbot-panel">
+            <div class="chatbot-header">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div class="chatbot-avatar-badge">Cô</div>
+                <div>
+                  <div style="font-size:23px; font-weight:bold;">Trợ lý Học tập Cô Hoàng Thị Tâm</div>
+                  <div style="font-size:18px; color:var(--yellow-soft);">Giải đáp tự động mọi câu hỏi về nghề thủ công</div>
+                </div>
+              </div>
+              <button type="button" class="icon-action-btn" style="height:36px; font-size:18px; padding:0 12px;" onclick="clearChatHistory()">
+                Xóa hội thoại
+              </button>
+            </div>
+
+            <div class="chatbot-messages" id="qa-chat-messages">
+              ${messagesHTML}
+              ${state.chatLoading ? `
+                <div class="chat-msg-row bot">
+                  <div class="chatbot-avatar-badge">Cô</div>
+                  <div class="chat-bubble" style="font-style:italic; color:var(--blue-main);">
+                    Cô đang phân tích câu hỏi và soạn câu trả lời cho em...
+                  </div>
+                </div>
+              ` : ""}
+            </div>
+
+            <form class="chatbot-input-bar" onsubmit="handleStudentChatSubmit(event)">
+              <input
+                type="text"
+                id="student-chat-input"
+                class="chatbot-text-input"
+                placeholder="Nhập câu hỏi của em vào đây (Ví dụ: Đất sét lấy ở đâu? Tranh Đông Hồ làm như thế nào?)..."
+                autocomplete="off"
+              />
+              <button type="submit" class="chatbot-send-btn">Gửi câu hỏi ➔</button>
+            </form>
+
+            ${state.showApiModal ? `
+              <div class="api-modal-overlay">
+                <div class="api-modal-box">
+                  <h3 style="font-size:28px; color:var(--blue-dark);">Cấu hình Chatbot (2 Phương án)</h3>
+                  <p style="font-size:21px; line-height:1.4; color:var(--text-main);">
+                    • <strong>Phương án 1 (Mặc định - Không cần mạng/API):</strong> Hệ thống tự động lọc từ khóa thông minh từ câu hỏi của học sinh để trả lời chuẩn xác theo chương trình SGK.<br/>
+                    • <strong>Phương án 2 (Dùng Gemini API Free):</strong> Dán mã Gemini API Key vào ô dưới đây để kết nối AI trực tiếp (nếu để trống sẽ dùng Phương án 1).
+                  </p>
+                  <input
+                    type="password"
+                    id="gemini-api-key-input"
+                    class="chatbot-text-input"
+                    style="width:100%;"
+                    placeholder="Dán Gemini API Key (AIzaSy...) vào đây hoặc để trống"
+                    value="${state.geminiApiKey}"
+                  />
+                  <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:6px;">
+                    <button type="button" class="nav-icon-btn" onclick="saveGeminiApiKey('')">Dùng Lọc Từ Khóa (Mặc định)</button>
+                    <button type="button" class="nav-icon-btn" onclick="toggleGeminiApiModal(false)">Đóng</button>
+                    <button type="button" class="chatbot-send-btn" onclick="saveGeminiApiKey(document.getElementById('gemini-api-key-input').value)">Lưu cấu hình</button>
+                  </div>
+                </div>
+              </div>
+            ` : ""}
+          </div>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-yellow" onclick="goToScreen('finish', true)">
+          <span>Hoàn thành</span>
+          <img src="ui/07_icon_next.png" alt="" class="btn-icon" />
+        </button>
+      `;
+
+      const msgBox = document.getElementById("qa-chat-messages");
+      if (msgBox) {
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }
+    }
+
+    function sendPresetQuestionToChat(idx) {
+      state.qaActiveIdx = idx;
+      const item = QA_PRESETS[idx];
+      if (!item) return;
+      state.chatMessages.push({ role: "user", text: item.q });
+      state.chatMessages.push({ role: "bot", text: item.a, tag: "Kịch bản chuẩn • " + item.tag, followups: analyzeStudentQuestionByKeywords(item.q).followups });
+      setTimeout(() => playSfx("receive"), 150);
+      renderApp(false);
+    }
+
+    async function handleStudentChatSubmit(ev) {
+      ev.preventDefault();
+      const inputEl = document.getElementById("student-chat-input");
+      if (!inputEl) return;
+      const question = inputEl.value.trim();
+      if (!question || state.chatLoading) return;
+
+      state.chatMessages.push({ role: "user", text: question });
+      inputEl.value = "";
+      playSfx("send");
+
+      if (state.geminiApiKey) {
+        state.chatLoading = true;
+        renderApp(false);
+        const aiRes = await askGeminiTeacherBot(question);
+        state.chatLoading = false;
+        if (aiRes) {
+          state.chatMessages.push({ role: "bot", text: aiRes.answer, tag: aiRes.tag });
+          playSfx("receive");
+          renderApp(false);
+          return;
+        }
+      }
+
+      const kwRes = analyzeStudentQuestionByKeywords(question);
+      state.chatLoading = true;
+      renderApp(false);
+      setTimeout(() => {
+        state.chatLoading = false;
+        state.chatMessages.push({ role: "bot", text: kwRes.answer, tag: kwRes.tag, followups: kwRes.followups });
+        playSfx("receive");
+        if (state.screen === "qa") renderApp(false);
+      }, 650);
+    }
+
+    function clearChatHistory() {
+      state.chatMessages = [
+        {
+          role: "bot",
+          text: "Lịch sử trò chuyện đã được làm mới! Em hãy chọn một câu hỏi gợi ý bên trái hoặc nhập câu hỏi mới vào ô bên dưới nhé!",
+          tag: "Trợ lý Cô Hoàng Thị Tâm"
+        }
+      ];
+      renderApp(false);
+    }
+
+    function toggleGeminiApiModal(show) {
+      state.showApiModal = Boolean(show);
+      renderApp(false);
+    }
+
+    function saveGeminiApiKey(val) {
+      const clean = (val || "").trim();
+      state.geminiApiKey = clean;
+      try {
+        if (clean) localStorage.setItem("HTK_GEMINI_API_KEY", clean);
+        else localStorage.removeItem("HTK_GEMINI_API_KEY");
+      } catch (e) {}
+      state.showApiModal = false;
+      renderApp(false);
+    }
+
+    /*************************************************************************
+     * MÀN 9: TỔNG KẾT HOẠT ĐỘNG KHÁM PHÁ & TRAO HUY HIỆU (45_ket_thuc)
+     *************************************************************************/
+    function renderFinishScreen(container, footerGuide, footerAction, autoPlayIntro) {
+      if (autoPlayIntro) {
+        playAudioCode("45_ket_thuc", null, false);
+        playSfx("fanfare");
+      }
+
+      footerGuide.textContent = "Chúc mừng em đã hoàn thành xuất sắc Hoạt động Khám phá!";
+
+      container.innerHTML = `
+        <div class="finish-layout">
+          <div class="finish-badge-card">
+            <img src="ui/12_badge.png" alt="Huy hiệu Nghệ nhân nhí tài ba" class="badge-hero" />
+            <h3 style="font-size:34px; color:var(--blue-dark);">NGHỆ NHÂN NHÍ TÀI BA</h3>
+            ${renderStarsBarHTML()}
+          </div>
+
+          <div class="finish-summary-card">
+            <div>
+              <h2 class="screen-heading" style="text-align:left; font-size:40px; margin-bottom:10px;">
+                Hoàn thành Hoạt động Khám phá!
+              </h2>
+              <div class="keyword-box-list">
+                <div class="keyword-item">
+                  <div class="keyword-label">1. Nhận biết nghề & sản phẩm thủ công</div>
+                  <div class="keyword-value">Nghề làm gốm, nghề mây tre đan, nghề dệt vải thổ cẩm, nghề làm tranh Đông Hồ và các nghề thủ công quanh em.</div>
+                </div>
+                <div class="keyword-item item-yellow">
+                  <div class="keyword-label">2. Hiểu rõ ích lợi</div>
+                  <div class="keyword-value">Sản phẩm thủ công phục vụ đời sống sinh hoạt, trang trí, giữ gìn văn hóa và đem lại thu nhập cho người lao động.</div>
+                </div>
+                <div class="keyword-item item-green">
+                  <div class="keyword-label">3. Lời dặn của cô Hoàng Thị Tâm</div>
+                  <div class="keyword-value">Luôn trân trọng công sức của người lao động, giữ gìn đồ dùng cẩn thận và sẵn sàng bước sang hoạt động tiếp theo của tiết học!</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:18px;">
+              <button type="button" class="ui-btn ui-btn-blue" style="flex:1;" onclick="resetAllAndReplay()">
+                <span>Khám phá lại</span>
+              </button>
+              <button type="button" class="ui-btn ui-btn-yellow" style="flex:1;" onclick="playAudioCode('45_ket_thuc', null, false)">
+                <img src="ui/08_icon_audio.png" alt="" class="btn-icon" />
+                <span>Nghe lời tổng kết</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      footerAction.innerHTML = `
+        <button type="button" class="ui-btn ui-btn-blue" onclick="goHomeScreen()">
+          <img src="ui/09_icon_home.png" alt="" class="btn-icon" />
+          <span>Về đầu bài</span>
+        </button>
+      `;
+    }
+
+    function resetAllAndReplay() {
+      state.exploredCrafts = {};
+      state.duBonNghePlayed = false;
+      state.quizIndex = 0;
+      state.quizSelected = null;
+      state.quizAnswered = {};
+      state.quizFeedback = null;
+      state.exploredBenefits = {};
+      state.exploredExtended = {};
+      state.memoRead = false;
+      state.gameIndex = 0;
+      state.gameStars = [false, false, false, false, false];
+      state.gameSinglePick = null;
+      state.gameMultiPicks = {};
+      state.gameMatches = {};
+      state.gameFeedback = null;
+      goToScreen("explore_grid", true);
+    }
+
+    /*************************************************************************
+     * 6. TÍCH HỢP CHUẨN LMS SCORM 1.2 & SCORM 2004 + CO GIÃN TỈ LỆ 16:9
+     *************************************************************************/
+    const SCORM_BRIDGE = {
+      api12: null,
+      api2004: null,
+      initialized: false,
+      startTime: Date.now(),
+
+      findAPI(win) {
+        let attempts = 0;
+        while (win && attempts < 15) {
+          if (win.API_1484_11) return { type: "2004", api: win.API_1484_11 };
+          if (win.API) return { type: "1.2", api: win.API };
+          if (win.parent && win.parent !== win) win = win.parent;
+          else break;
+          attempts++;
+        }
+        return null;
+      },
+
+      init() {
+        if (this.initialized) return;
+        try {
+          const found = this.findAPI(window) || (window.opener ? this.findAPI(window.opener) : null);
+          if (!found) return;
+          if (found.type === "2004") {
+            this.api2004 = found.api;
+            this.api2004.Initialize("");
+            this.api2004.SetValue("cmi.completion_status", "incomplete");
+            this.api2004.SetValue("cmi.score.min", "0");
+            this.api2004.SetValue("cmi.score.max", "100");
+            this.api2004.Commit("");
+          } else {
+            this.api12 = found.api;
+            this.api12.LMSInitialize("");
+            this.api12.LMSSetValue("cmi.core.lesson_status", "incomplete");
+            this.api12.LMSSetValue("cmi.core.score.min", "0");
+            this.api12.LMSSetValue("cmi.core.score.max", "100");
+            this.api12.LMSCommit("");
+          }
+          this.initialized = true;
+        } catch (e) {}
+      },
+
+      report(pct, screenName) {
+        if (!this.initialized) return;
+        try {
+          const completed = (pct >= 100 || screenName === "finish");
+          if (this.api2004) {
+            this.api2004.SetValue("cmi.score.raw", String(pct));
+            this.api2004.SetValue("cmi.score.scaled", String((pct / 100).toFixed(2)));
+            this.api2004.SetValue("cmi.location", String(screenName || ""));
+            this.api2004.SetValue("cmi.completion_status", completed ? "completed" : "incomplete");
+            if (completed) this.api2004.SetValue("cmi.success_status", "passed");
+            this.api2004.Commit("");
+          } else if (this.api12) {
+            this.api12.LMSSetValue("cmi.core.score.raw", String(pct));
+            this.api12.LMSSetValue("cmi.core.lesson_location", String(screenName || ""));
+            this.api12.LMSSetValue("cmi.core.lesson_status", completed ? "passed" : "incomplete");
+            this.api12.LMSCommit("");
+          }
+        } catch (e) {}
+      },
+
+      finish() {
+        if (!this.initialized) return;
+        try {
+          if (this.api2004) {
+            this.api2004.Commit("");
+            this.api2004.Terminate("");
+          } else if (this.api12) {
+            this.api12.LMSCommit("");
+            this.api12.LMSFinish("");
+          }
+          this.initialized = false;
+        } catch (e) {}
+      }
+    };
+
+    const _origUpdateProgressBarUI = updateProgressBarUI;
+    updateProgressBarUI = function() {
+      _origUpdateProgressBarUI();
+      const pct = computeProgressPercent();
+      SCORM_BRIDGE.report(pct, state.screen);
+    };
+
+    function fitStage16x9() {
+      const stage = document.getElementById("stage-wrapper");
+      if (!stage) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const scale = Math.min(vw / 1600, vh / 900);
+      stage.style.transform = `scale(${scale})`;
+    }
+
+    window.addEventListener("resize", fitStage16x9);
+    window.addEventListener("beforeunload", () => SCORM_BRIDGE.finish());
+    window.addEventListener("DOMContentLoaded", () => {
+      SCORM_BRIDGE.init();
+      fitStage16x9();
+      renderApp(true);
+    });
+  </script>
+</body>
+</html>

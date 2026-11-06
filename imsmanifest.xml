@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="HTK_TNXH3_BAI10_TIET1_SCORM12" version="1.0"
+          xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+          xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd
+                              http://www.imsglobal.org/xsd/imsmd_rootv1p2p1 imsmd_rootv1p2p1.xsd
+                              http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations default="ORG_HTK_TNXH3">
+    <organization identifier="ORG_HTK_TNXH3">
+      <title>Bài 10: Hoạt động sản xuất thủ công và công nghiệp (Tiết 1) - GV Hoàng Thị Tâm</title>
+      <item identifier="ITEM_BAI10_KHAMPHA" identifierref="RES_BAI10_KHAMPHA" isvisible="true">
+        <title>Hoạt động Khám phá: Tìm hiểu hoạt động sản xuất thủ công</title>
+        <adlcp:masteryscore>80</adlcp:masteryscore>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="RES_BAI10_KHAMPHA" type="webcontent" adlcp:scormtype="sco" href="index.html">
+      <file href="Danh_muc.html"/>
+      <file href="HUONG_DAN_AGENT.md"/>
+      <file href="Loi_thu_am.md"/>
+      <file href="Prompts_UI.json"/>
+      <file href="audio/00_bia.mp3"/>
+      <file href="audio/01_mo_dau.mp3"/>
+      <file href="audio/02_nhiem_vu.mp3"/>
+      <file href="audio/03_kham_pha.mp3"/>
+      <file href="audio/04_lam_gom.mp3"/>
+      <file href="audio/05_may_tre.mp3"/>
+      <file href="audio/06_det_vai.mp3"/>
+      <file href="audio/07_dong_ho.mp3"/>
+      <file href="audio/08_sau_the.mp3"/>
+      <file href="audio/09_du_bon_nghe.mp3"/>
+      <file href="audio/10_kiem_tra.mp3"/>
+      <file href="audio/11_cau_1.mp3"/>
+      <file href="audio/12_dung_1.mp3"/>
+      <file href="audio/13_cau_2.mp3"/>
+      <file href="audio/14_dung_2.mp3"/>
+      <file href="audio/15_cau_3.mp3"/>
+      <file href="audio/16_dung_3.mp3"/>
+      <file href="audio/17_cau_4.mp3"/>
+      <file href="audio/18_dung_4.mp3"/>
+      <file href="audio/19_thu_lai.mp3"/>
+      <file href="audio/20_chua_chon.mp3"/>
+      <file href="audio/21_xong_kiem_tra.mp3"/>
+      <file href="audio/22_ich_loi.mp3"/>
+      <file href="audio/23_ich_loi_gom.mp3"/>
+      <file href="audio/24_ich_loi_vai.mp3"/>
+      <file href="audio/25_ich_loi_tre.mp3"/>
+      <file href="audio/26_ich_loi_tranh.mp3"/>
+      <file href="audio/27_ghi_nho.mp3"/>
+      <file href="audio/28_mo_rong.mp3"/>
+      <file href="audio/29_non_la.mp3"/>
+      <file href="audio/30_banh_trang.mp3"/>
+      <file href="audio/31_do_go.mp3"/>
+      <file href="audio/32_dan_lat.mp3"/>
+      <file href="audio/33_vao_game.mp3"/>
+      <file href="audio/34_game_1.mp3"/>
+      <file href="audio/35_game_2.mp3"/>
+      <file href="audio/36_game_3.mp3"/>
+      <file href="audio/37_game_4.mp3"/>
+      <file href="audio/38_game_5.mp3"/>
+      <file href="audio/39_game_dung.mp3"/>
+      <file href="audio/40_game_du_hai.mp3"/>
+      <file href="audio/41_game_chua_ghep.mp3"/>
+      <file href="audio/42_huy_hieu.mp3"/>
+      <file href="audio/43_hoi_dap.mp3"/>
+      <file href="audio/44_hoi_dap_san.mp3"/>
+      <file href="audio/45_ket_thuc.mp3"/>
+      <file href="audio/nen1.mp3"/>
+      <file href="ext/ext_1_non_la.jpg"/>
+      <file href="ext/ext_2_banh_trang.jpg"/>
+      <file href="ext/ext_3_do_go.jpg"/>
+      <file href="ext/ext_4_dan_lat.jpg"/>
+      <file href="ext/memo_1_dac_diem.jpg"/>
+      <file href="ext/memo_2_ich_loi.jpg"/>
+      <file href="ext/memo_3_thai_do.jpg"/>
+      <file href="index.html"/>
+      <file href="manifest.json"/>
+      <file href="sgk/hinh_2_lam_gom.png"/>
+      <file href="sgk/hinh_3_may_tre_dan.png"/>
+      <file href="sgk/hinh_4_det_tho_cam.png"/>
+      <file href="sgk/hinh_5_tranh_dong_ho.png"/>
+      <file href="sgk/hinh_6_do_gom.png"/>
+      <file href="sgk/hinh_7_tho_cam.png"/>
+      <file href="sgk/hinh_8_may_tre.png"/>
+      <file href="sgk/hinh_9_tranh_dong_ho.png"/>
+      <file href="sgk/sgk_goc_hinh_2_5.png"/>
+      <file href="sgk/sgk_goc_hinh_6_9.png"/>
+      <file href="ui/01_background_16x9.png"/>
+      <file href="ui/02_panel.png"/>
+      <file href="ui/03_item_card.png"/>
+      <file href="ui/04_button_yellow.png"/>
+      <file href="ui/05_button_blue.png"/>
+      <file href="ui/06_icon_back.png"/>
+      <file href="ui/07_icon_next.png"/>
+      <file href="ui/08_icon_audio.png"/>
+      <file href="ui/09_icon_home.png"/>
+      <file href="ui/10_star.png"/>
+      <file href="ui/11_check.png"/>
+      <file href="ui/12_badge.png"/>
+      <file href="video/video.mp4"/>
+    </resource>
+  </resources>
+</manifest>

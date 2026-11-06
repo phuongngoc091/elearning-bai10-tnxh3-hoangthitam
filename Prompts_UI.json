@@ -1,0 +1,62 @@
+[
+  {
+    "asset": "01_background_16x9",
+    "prompt": "Generate a clean landscape 16:9 page BACKGROUND ONLY. Full opaque white central 90% space, thin saturated royal blue gradient at the outer edges and corners, subtle highlights. No panels, no buttons, no text, no objects, no icons. Suitable as backdrop for learning content. Not pastel.",
+    "transparent_background": false
+  },
+  {
+    "asset": "02_panel",
+    "prompt": "One wide landscape rounded rectangular content PANEL with thin glossy royal blue bevelled border and opaque white blank interior. Interior occupies 94% of shape, very spacious. Panel aspect ratio 16:9. No buttons or decorations.",
+    "transparent_background": true
+  },
+  {
+    "asset": "03_item_card",
+    "prompt": "One landscape rounded rectangular IMAGE CARD frame aspect ratio 4:3, golden yellow compact bevel border, white blank interior, bottom 18% of card is blank golden yellow caption strip. Absolutely no pictures, symbols or text. Thin frame maximizing image space.",
+    "transparent_background": true
+  },
+  {
+    "asset": "04_button_yellow",
+    "prompt": "One wide golden yellow pill-rectangle raised BUTTON aspect ratio 3:1. Smooth uniform yellow center left blank for text, orange lower bevel, crisp subtle specular edges. No icon.",
+    "transparent_background": true
+  },
+  {
+    "asset": "05_button_blue",
+    "prompt": "One wide royal blue pill-rectangle raised BUTTON aspect ratio 3:1. Smooth blue center left blank for text, dark blue lower bevel, crisp cyan edge highlights. No icon.",
+    "transparent_background": true
+  },
+  {
+    "asset": "06_icon_back",
+    "prompt": "One chunky royal blue LEFT ARROW icon with glossy bevelled 3D edge, isolated. No button tile behind it. Simple readable silhouette.",
+    "transparent_background": true
+  },
+  {
+    "asset": "07_icon_next",
+    "prompt": "One chunky royal blue RIGHT ARROW icon with glossy bevelled 3D edge, isolated. No button tile behind it. Simple readable silhouette.",
+    "transparent_background": true
+  },
+  {
+    "asset": "08_icon_audio",
+    "prompt": "One chunky royal blue SPEAKER WITH TWO SOUND WAVES icon with glossy bevelled 3D edge, isolated. No button tile behind it.",
+    "transparent_background": true
+  },
+  {
+    "asset": "09_icon_home",
+    "prompt": "One chunky royal blue HOUSE home icon with glossy bevelled 3D edge, isolated. No button tile behind it. Simple readable silhouette.",
+    "transparent_background": true
+  },
+  {
+    "asset": "10_star",
+    "prompt": "One golden yellow five-point reward STAR, glossy bevelled 3D, simple symmetrical front view, no eyes or face, no button tile.",
+    "transparent_background": true
+  },
+  {
+    "asset": "11_check",
+    "prompt": "One emerald-green circular completion token with a big white CHECK MARK, compact 3D bevel, no text.",
+    "transparent_background": true
+  },
+  {
+    "asset": "12_badge",
+    "prompt": "One golden yellow scalloped achievement MEDAL with a small terracotta pottery vase emblem in center, subtle green laurel leaves either side, and one blank golden ribbon along bottom. Cute polished educational game reward. NO text or letters anywhere.",
+    "transparent_background": true
+  }
+]

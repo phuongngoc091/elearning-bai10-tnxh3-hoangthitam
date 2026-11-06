@@ -1,0 +1,121 @@
+[
+  {
+    "file": "ui/01_background_16x9.png",
+    "width": 1672,
+    "height": 941,
+    "alpha": false,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/02_panel.png",
+    "width": 1672,
+    "height": 941,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/03_item_card.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/04_button_yellow.png",
+    "width": 2172,
+    "height": 724,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/05_button_blue.png",
+    "width": 2172,
+    "height": 724,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/06_icon_back.png",
+    "width": 1536,
+    "height": 1024,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/07_icon_next.png",
+    "width": 1536,
+    "height": 1024,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/08_icon_audio.png",
+    "width": 1536,
+    "height": 1024,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/09_icon_home.png",
+    "width": 1312,
+    "height": 1199,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/10_star.png",
+    "width": 1261,
+    "height": 1247,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/11_check.png",
+    "width": 1536,
+    "height": 1024,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "ui/12_badge.png",
+    "width": 1312,
+    "height": 1199,
+    "alpha": true,
+    "source": "Ảnh UI sinh bằng công cụ tạo ảnh"
+  },
+  {
+    "file": "sgk/hinh_2_lam_gom.png",
+    "width": 239,
+    "height": 165,
+    "alpha": false,
+    "source": "SGK do người dùng cung cấp; cắt nguyên pixel"
+  },
+  {
+    "file": "sgk/hinh_3_may_tre_dan.png",
+    "width": 239,
+    "height": 165,
+    "alpha": false,
+    "source": "SGK do người dùng cung cấp; cắt nguyên pixel"
+  },
+  {
+    "file": "sgk/hinh_4_det_tho_cam.png",
+    "width": 239,
+    "height": 164,
+    "alpha": false,
+    "source": "SGK do người dùng cung cấp; cắt nguyên pixel"
+  },
+  {
+    "file": "sgk/hinh_5_tranh_dong_ho.png",
+    "width": 239,
+    "height": 164,
+    "alpha": false,
+    "source": "SGK do người dùng cung cấp; cắt nguyên pixel"
+  },
+  {
+    "file": "sgk/sgk_goc_hinh_2_5.png",
+    "width": 551,
+    "height": 407,
+    "alpha": false,
+    "source": "SGK do người dùng cung cấp; cắt nguyên pixel"
+  }
+]
